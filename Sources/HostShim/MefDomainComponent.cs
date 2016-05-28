@@ -48,15 +48,15 @@ namespace HostShim
             Directory.SetCurrentDirectory(this.Path);
             TaskScheduler.UnobservedTaskException += this.UnobservedTaskException;
 
-            string asyncLoading = ConfigurationManager.AppSettings[nameof(asyncLoading)];
-            if (string.IsNullOrWhiteSpace(asyncLoading))
+            string asyncStart = ConfigurationManager.AppSettings[nameof(asyncStart)] ?? false.ToString();
+            if (asyncStart.Equals(false.ToString(), StringComparison.OrdinalIgnoreCase))
             {
                 this.StartInternal();
                 return;
             }
 
             CanStopComponentEvent.Reset();
-            Task.Factory.StartNew(this.StartInternal)
+            Task.Factory.StartNew(this.StartInternal, TaskCreationOptions.LongRunning)
                 .ContinueWith(t => CanStopComponentEvent.Set());
         }
 
