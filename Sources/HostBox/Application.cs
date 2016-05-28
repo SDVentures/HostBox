@@ -8,7 +8,7 @@ namespace HostBox
 {
     internal class Application
     {
-        private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger<Application>();
 
         private readonly IEnumerable<string> componentPaths;
 
@@ -24,7 +24,7 @@ namespace HostBox
 
         public bool Start()
         {
-            Logger.Info("Запуск приложения.");
+            Logger.Info(m => m("Запуск приложения."));
             Logger.Debug(m => m("Для загрузки указаны компоненты из директорий: {0}", string.Join(";", this.componentPaths)));
 
             try
@@ -58,7 +58,7 @@ namespace HostBox
 
         public bool Stop()
         {
-            Logger.Info("Остановка приложения.");
+            Logger.Info(m => m("Остановка приложения."));
 
             try
             {
@@ -75,7 +75,7 @@ namespace HostBox
 
         public bool Resume()
         {
-            Logger.Info("Возобновление работы приложения.");
+            Logger.Info(m => m("Возобновление работы приложения."));
 
             try
             {
@@ -92,7 +92,7 @@ namespace HostBox
 
         public bool Pause()
         {
-            Logger.Info("Приостановка работы приложения.");
+            Logger.Info(m => m("Приостановка работы приложения."));
 
             try
             {
@@ -109,7 +109,7 @@ namespace HostBox
 
         public bool Shutdown()
         {
-            Logger.Info("Завершение приложения.");
+            Logger.Info(m => m("Завершение приложения."));
 
             try
             {

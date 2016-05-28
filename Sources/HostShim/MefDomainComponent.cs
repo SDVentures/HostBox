@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Security.Permissions;
+using System.Threading;
 using System.Threading.Tasks;
 
 using HostBox.Borderline;
@@ -16,6 +18,8 @@ namespace HostShim
     /// </summary>
     public class MefDomainComponent : MarshalByRefObject, IComponent
     {
+        private static readonly ManualResetEvent CanStopComponentEvent = new ManualResetEvent(true);
+
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MefDomainComponent"/>. 
         /// </summary>
@@ -28,7 +32,7 @@ namespace HostShim
         /// <summary>
         /// Путь к исполняемому коду компонента.
         /// </summary>
-        public string Path { get; private set; }
+        public string Path { get; }
 
         [ImportMany(typeof(IHostableComponentFactory))]
         // ReSharper disable once UnusedAutoPropertyAccessor.Local Инициализируется через MEF.
@@ -41,12 +45,19 @@ namespace HostShim
         /// </summary>
         public void Start()
         {
-            Directory.SetCurrentDirectory(Path);
+            Directory.SetCurrentDirectory(this.Path);
             TaskScheduler.UnobservedTaskException += this.UnobservedTaskException;
 
-            this.LoadComponentFactories();
-            this.CreateComponents();
-            this.StartComponents();
+            string asyncLoading = ConfigurationManager.AppSettings[nameof(asyncLoading)];
+            if (string.IsNullOrWhiteSpace(asyncLoading))
+            {
+                this.StartInternal();
+                return;
+            }
+
+            CanStopComponentEvent.Reset();
+            Task.Factory.StartNew(this.StartInternal)
+                .ContinueWith(t => CanStopComponentEvent.Set());
         }
 
         /// <summary>
@@ -54,6 +65,8 @@ namespace HostShim
         /// </summary>
         public void Resume()
         {
+            CanStopComponentEvent.WaitOne();
+
             foreach (var hostableComponent in this.HostableComponent)
             {
                 hostableComponent.Resume();
@@ -65,6 +78,8 @@ namespace HostShim
         /// </summary>
         public void Pause()
         {
+            CanStopComponentEvent.WaitOne();
+
             foreach (var hostableComponent in this.HostableComponent)
             {
                 hostableComponent.Pause();
@@ -76,6 +91,8 @@ namespace HostShim
         /// </summary>
         public void Stop()
         {
+            CanStopComponentEvent.WaitOne();
+
             foreach (var hostableComponent in this.HostableComponent)
             {
                 hostableComponent.Stop();
@@ -87,6 +104,13 @@ namespace HostShim
         public override object InitializeLifetimeService()
         {
             return null;
+        }
+
+        private void StartInternal()
+        {
+            this.LoadComponentFactories();
+            this.CreateComponents();
+            this.StartComponents();
         }
 
         private void StartComponents()
@@ -102,15 +126,12 @@ namespace HostShim
             if (this.HostableComponentFactories == null)
             {
                 this.HostableComponent = Enumerable.Empty<IHostableComponent>();
+                return;
             }
-            else
-            {
-                List<IHostableComponentFactory> factories = this.HostableComponentFactories.ToList();
 
-                var components = factories.Select(hostableComponentFactory => hostableComponentFactory.CreateComponent()).ToList();
-
-                this.HostableComponent = components;
-            }
+            var factories = this.HostableComponentFactories.ToList();
+            var components = factories.Select(hostableComponentFactory => hostableComponentFactory.CreateComponent()).ToList();
+            this.HostableComponent = components;
         }
 
         private void LoadComponentFactories()

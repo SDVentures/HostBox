@@ -11,7 +11,7 @@ namespace HostBox
     /// </summary>
     public class ComponentManager : IComponentManager
     {
-        private static readonly ILog Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = LogManager.GetLogger<ComponentManager>();
 
         private readonly IComponentFactory componentFactory;
 
@@ -40,7 +40,7 @@ namespace HostBox
         {
             if (configuration.ComponentPaths.Count == 0)
             {
-                Logger.Warn("Нет компонентов для загрузки.");
+                Logger.Warn(m => m("Нет компонентов для загрузки."));
             }
 
             foreach (var componentPath in configuration.ComponentPaths)
