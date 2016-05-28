@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sources", "Sources", "{6808992D-1795-47E3-9A56-D7C33C0A6BFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostBox", "Sources\HostBox\HostBox.csproj", "{B38FD3AC-FD0F-4169-BF6F-AAD532AC8792}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostShim", "Sources\HostShim\HostShim.csproj", "{EDD4A921-7503-4DF0-8B05-6E95E99D55A1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B38FD3AC-FD0F-4169-BF6F-AAD532AC8792}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B38FD3AC-FD0F-4169-BF6F-AAD532AC8792}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B38FD3AC-FD0F-4169-BF6F-AAD532AC8792}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B38FD3AC-FD0F-4169-BF6F-AAD532AC8792}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDD4A921-7503-4DF0-8B05-6E95E99D55A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDD4A921-7503-4DF0-8B05-6E95E99D55A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDD4A921-7503-4DF0-8B05-6E95E99D55A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDD4A921-7503-4DF0-8B05-6E95E99D55A1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B38FD3AC-FD0F-4169-BF6F-AAD532AC8792} = {6808992D-1795-47E3-9A56-D7C33C0A6BFA}
+		{EDD4A921-7503-4DF0-8B05-6E95E99D55A1} = {6808992D-1795-47E3-9A56-D7C33C0A6BFA}
+	EndGlobalSection
+EndGlobal
