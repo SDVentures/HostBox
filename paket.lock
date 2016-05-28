@@ -1,0 +1,17 @@
+NUGET
+  remote: https://www.nuget.org/api/v2
+  specs:
+    Common.Logging (3.2) - framework: net452
+      Common.Logging.Core (>= 3.2)
+    Common.Logging.Core (3.2) - framework: net452
+    Common.Logging.NLog32 (3.2) - framework: net452
+      Common.Logging (>= 3.2)
+      NLog (>= 3.2)
+    FAKE (4.0.3) - framework: net40
+    HostBox.Borderline (1.0) - framework: net452
+    NLog (3.2) - framework: net452
+    NuGet.CommandLine (2.8.6) - framework: net40
+    Topshelf (3.1.4) - framework: net452
+    Topshelf.Common.Logging (1.0.2.1) - framework: net452
+      Common.Logging (>= 3.0)
+      Topshelf (>= 3.1.4)

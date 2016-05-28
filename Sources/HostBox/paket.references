@@ -1,0 +1,6 @@
+﻿Common.Logging
+Common.Logging.Core
+Common.Logging.NLog32
+NLog
+Topshelf
+Topshelf.Common.Logging
