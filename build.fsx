@@ -46,12 +46,9 @@ Target "AssemblyInfo" (fun _ ->
           Attribute.Version release.AssemblyVersion
           Attribute.FileVersion release.AssemblyVersion
           Attribute.InformationalVersion release.NugetVersion
-          Attribute.Copyright license
-          Attribute.InternalsVisibleTo "DynamicProxyGenAssembly2"
-          Attribute.InternalsVisibleTo "HostBox.Common.Tests"
-          Attribute.InternalsVisibleTo "HostBox.RabbitMq.Tests"
-          Attribute.InternalsVisibleTo "HostBox.Configurator.Tests" ]
+          Attribute.Copyright license ]
     CreateCSharpAssemblyInfo <| "./Sources/" @@ project @@ "/Properties/AssemblyInfo.cs" <| info
+    CreateCSharpAssemblyInfo <| "./Sources/" @@ "HostShim" @@ "/Properties/AssemblyInfo.cs" <| info
 )
 
 Target "Build" (fun () ->
