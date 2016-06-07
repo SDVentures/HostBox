@@ -13,7 +13,7 @@ let summary = "The host of plugin applications."
 let description = """
   The host of plugin applications can be executed as a console application or as a windows service."""
 let license = "MIT License"
-let tags = "rabbitmq client servicebus"
+let tags = "host plugin service"
 
 let release = ReleaseNotesHelper.parseReleaseNotes (File.ReadLines "RELEASE_NOTES.md")
 
