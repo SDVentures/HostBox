@@ -23,26 +23,21 @@ namespace HostShim
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MefDomainComponent"/>. 
         /// </summary>
-        /// <param name="componentPath">Путь к исполняемым модулям компонента.</param>
+        /// <param name="componentPath">  Путь к исполняемым модулям компонента. </param>
         public MefDomainComponent(string componentPath)
         {
             this.Path = componentPath;
         }
 
-        /// <summary>
-        /// Путь к исполняемому коду компонента.
-        /// </summary>
+        /// <inheritdoc />
         public string Path { get; }
 
         [ImportMany(typeof(IHostableComponentFactory))]
-        // ReSharper disable once UnusedAutoPropertyAccessor.Local Инициализируется через MEF.
         private IEnumerable<IHostableComponentFactory> HostableComponentFactories { get; set; }
 
         private IEnumerable<IHostableComponent> HostableComponent { get; set; }
 
-        /// <summary>
-        /// Запускает компонент.
-        /// </summary>
+        /// <inheritdoc />
         public void Start()
         {
             Directory.SetCurrentDirectory(this.Path);
@@ -60,9 +55,7 @@ namespace HostShim
                 .ContinueWith(t => CanStopComponentEvent.Set());
         }
 
-        /// <summary>
-        /// Возобновляет работу загружаемого компонента.
-        /// </summary>
+        /// <inheritdoc />
         public void Resume()
         {
             CanStopComponentEvent.WaitOne();
@@ -73,9 +66,7 @@ namespace HostShim
             }
         }
 
-        /// <summary>
-        /// Приостанавливает работу загружаемого компонента.
-        /// </summary>
+        /// <inheritdoc />
         public void Pause()
         {
             CanStopComponentEvent.WaitOne();
@@ -86,9 +77,7 @@ namespace HostShim
             }
         }
 
-        /// <summary>
-        /// Останавливает работу загружаемого компонента.
-        /// </summary>
+        /// <inheritdoc />
         public void Stop()
         {
             CanStopComponentEvent.WaitOne();
