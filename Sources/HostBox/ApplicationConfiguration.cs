@@ -3,27 +3,27 @@
 namespace HostBox
 {
     /// <summary>
-    /// Конфигурация приложения. 
-    /// Используется для контроля за ходом выполнения приложения и обеспечивает 
-    /// возможность менять поведение приложения во время выполнения.
+    /// Application Configuration
+    /// Uses to control the progress of the application and provides 
+    /// ability to change application behaviour during execution
     /// </summary>
     public class ApplicationConfiguration : IApplicationConfiguration
     {
         /// <summary>
-        /// Пути к загружаемым компонентам приложения.
+        /// Paths to application loading components
         /// </summary>
         public virtual ICollection<string> ComponentPaths { get; set; }
 
         /// <summary>
-        /// Ответственный за управление загружаемыми компонентами.
-        /// Отвечает за загрузку, выгрузку, запуск и остановку компонентов.
+        /// Responsible for managing loading components:
+        /// loading, unloading, starting and stopping 
         /// </summary>
         public virtual IComponentManager ComponentManager { get; set; }
 
         /// <summary>
-        /// Коллекция конфигураций загруженных компонентов.
-        /// Которые используются для контроля за кодом выполнения загружаемого компонента.
-        /// Обеспечивают возможность менять поведение загружаемого компонента во время выполнения.
+        /// Collection of the configuration of loaded components
+        /// Uses to control the progress of the application and provides 
+        /// ability to change application behaviour during execution
         /// </summary>
         public virtual ICollection<IComponentConfiguration> ComponentConfigurations { get; set; }
     }

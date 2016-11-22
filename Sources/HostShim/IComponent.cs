@@ -1,32 +1,32 @@
 ﻿namespace HostShim
 {
     /// <summary>
-    /// Загружаемый компонент приложения.
+    /// Application component
     /// </summary>
     public interface IComponent
     {
         /// <summary>
-        /// Путь к исполняемому коду компонента.
+        /// Path to the executable code of the component 
         /// </summary>
         string Path { get; }
 
         /// <summary>
-        /// Запускает компонент.
+        /// Starts the component
         /// </summary>
         void Start();
 
         /// <summary>
-        /// Возобновляет работу загружаемого компонента.
+        /// Resumes the component
         /// </summary>
         void Resume();
 
         /// <summary>
-        /// Приостанавливает работу загружаемого компонента.
+        /// Pauses the component
         /// </summary>
         void Pause();
 
         /// <summary>
-        /// Останавливает работу загружаемого компонента.
+        /// Stops the component
         /// </summary>
         void Stop();
     }

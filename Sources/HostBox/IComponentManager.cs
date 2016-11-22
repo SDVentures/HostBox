@@ -1,35 +1,35 @@
 ﻿namespace HostBox
 {
     /// <summary>
-    /// Управляющий компонентами.
-    /// Выполняет работы по загрузке компонентов, выгрузке компонентов, остановке и запуску.
+    /// Component manager
+    /// Performs component loading and unloading, start and stop it 
     /// </summary>
     public interface IComponentManager
     {
         /// <summary>
-        /// Загружает компоненты в приложение, на основе полученной конфигурации.
+        /// Load the component into the application based on configuration
         /// </summary>
-        /// <param name="configuration">Конфигурация приложения.</param>
+        /// <param name="configuration"> Application configuration </param>
         void LoadComponents(IApplicationConfiguration configuration);
 
         /// <summary>
-        /// Выгружает компоненты из приложения, которые указаны в конфигурации приложения. 
-        /// Компоненты выгружаются в порядке обратном порядку загрузки приложения.
+        /// Unload the component into the application based on configuration
+        /// Components unloading in the reverse order of the loading
         /// </summary>
-        /// <param name="configuration">Конфигурация приложения.</param>
+        /// <param name="configuration"> Application configuration </param>
         void UnloadComponents(IApplicationConfiguration configuration);
 
         /// <summary>
-        /// Приостанавливает работу компонентов приложения из списка компонентов в конфигурации приложения.
-        /// Компоненты приостанавливают работу в порядке обратном порядку загрузки компонентов.
+        /// Pause work of the component from the list of components based on configuration
+        /// Components pausing in the reverse order of the loading
         /// </summary>
-        /// <param name="configuration">Конфигурация приложения.</param>
+        /// <param name="configuration"> Application configuration </param>
         void PauseComponents(IApplicationConfiguration configuration);
 
         /// <summary>
-        /// Возобновляет работу компонентов приложения.
+        /// Resume work of the components
         /// </summary>
-        /// <param name="configuration">Конфигурация приложения.</param>
+        /// <param name="configuration"> Application configuration </param>
         void ResumeComponents(IApplicationConfiguration configuration);
     }
 }

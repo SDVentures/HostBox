@@ -24,8 +24,8 @@ namespace HostBox
 
         public bool Start()
         {
-            Logger.Info(m => m("Запуск приложения."));
-            Logger.Debug(m => m("Для загрузки указаны компоненты из директорий: {0}", string.Join(";", this.componentPaths)));
+            Logger.Info(m => m("Starting application..."));
+            Logger.Debug(m => m($"Specified directories for loadings components: {string.Join(";", this.componentPaths)}"));
 
             try
             {
@@ -40,16 +40,16 @@ namespace HostBox
                     foreach (var loaderException in exception.LoaderExceptions)
                     {
                         var currentException = loaderException;
-                        Logger.Fatal(m => m("Ошибка загрузки типа"), currentException);
+                        Logger.Fatal(m => m("Type loading error"), currentException);
                     }
                 }
 
-                Logger.Fatal(m => m("При запуске приложения произошла ошибка."), exception);
+                Logger.Fatal(m => m("Error during starting the application"), exception);
                 throw;
             }
             catch (Exception exception)
             {
-                Logger.Fatal(m => m("При запуске приложения произошла ошибка."), exception);
+                Logger.Fatal(m => m("Error during starting the application"), exception);
                 throw;
             }
 
@@ -58,7 +58,7 @@ namespace HostBox
 
         public bool Stop()
         {
-            Logger.Info(m => m("Остановка приложения."));
+            Logger.Info(m => m("Stopping application..."));
 
             try
             {
@@ -66,7 +66,7 @@ namespace HostBox
             }
             catch (Exception exception)
             {
-                Logger.Fatal(m => m("При остановке приложения произошла ошибка."), exception);
+                Logger.Fatal(m => m("Error during stopping the application"), exception);
                 throw;
             }
 
@@ -75,7 +75,7 @@ namespace HostBox
 
         public bool Resume()
         {
-            Logger.Info(m => m("Возобновление работы приложения."));
+            Logger.Info(m => m("Resuming application..."));
 
             try
             {
@@ -83,7 +83,7 @@ namespace HostBox
             }
             catch (Exception exception)
             {
-                Logger.Fatal(m => m("При возобнолении работы приложения произошла ошибка."), exception);
+                Logger.Fatal(m => m("Error during resuming the application"), exception);
                 throw;
             }
 
@@ -92,7 +92,7 @@ namespace HostBox
 
         public bool Pause()
         {
-            Logger.Info(m => m("Приостановка работы приложения."));
+            Logger.Info(m => m("Pausing application..."));
 
             try
             {
@@ -100,7 +100,7 @@ namespace HostBox
             }
             catch (Exception exception)
             {
-                Logger.Fatal(m => m("При попытке приостановить приложение произошла ошибка."), exception);
+                Logger.Fatal(m => m("Error during pausing the application"), exception);
                 throw;
             }
 
@@ -109,7 +109,7 @@ namespace HostBox
 
         public bool Shutdown()
         {
-            Logger.Info(m => m("Завершение приложения."));
+            Logger.Info(m => m("Shutting down application..."));
 
             try
             {
@@ -117,7 +117,7 @@ namespace HostBox
             }
             catch (Exception exception)
             {
-                Logger.Fatal(m => m("При завершении приложение произошла ошибка."), exception);
+                Logger.Fatal(m => m("Error during shutting down the application"), exception);
                 throw;
             }
 

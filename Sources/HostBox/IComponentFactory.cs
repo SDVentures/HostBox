@@ -5,17 +5,18 @@ using HostShim;
 namespace HostBox
 {
     /// <summary>
-    /// Фабрика загружаемых компонентов.
+    /// Component factory
     /// </summary>
     public interface IComponentFactory
     {
         /// <summary>
-        /// Создает загружаемый компонент.
+        /// Create component
         /// </summary>
-        /// <param name="componentPath">Путь с исполняемым кодом загружаемого компонента.</param>
-        /// <param name="targetDomain">Целевой домен приложения, в который загружается компонент.</param>
-        /// <param name="hostDomain">Основной домен приложения.</param>
-        /// <returns>Загружаемый компонент.</returns>
+        /// <param name="componentPath"> Path to executable code of the component </param>
+        /// <param name="targetDomain"> Target domain in which component will be loaded </param>
+        /// <param name="hostDomain"> Main application domain </param>
+        /// <returns> Loaded component </returns>
         IComponent CreateComponent(string componentPath, AppDomain targetDomain, AppDomain hostDomain);
     }
 }
+

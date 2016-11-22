@@ -17,6 +17,8 @@ namespace HostBox
     {
         private const string PathSeparator = ";";
 
+        private const string ServiceName = "HostBox";
+
         private static readonly ILog Logger = LogManager.GetLogger<Program>();
 
         private static void Main()
@@ -43,9 +45,9 @@ namespace HostBox
                                 });
                         configuration.UseCommonLogging();
                         configuration.AfterInstall(settings => AddServiceStartupOption(settings, paths));
-                        configuration.SetServiceName("HostBox");
-                        configuration.SetDisplayName("HostBox");
-                        configuration.SetDescription("HostBox");
+                        configuration.SetServiceName(ServiceName);
+                        configuration.SetDisplayName(ServiceName);
+                        configuration.SetDescription(ServiceName);
                         configuration.Service<Application>(
                             service =>
                                 {
@@ -63,7 +65,7 @@ namespace HostBox
         private static void UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
             e.SetObserved();
-            Logger.Warn("Перехват необработанного исключения. Возможно, состояние системы повреждено.", e.Exception);
+            Logger.Warn(m => m("Unhandled exception was intercepted. The state of the system may be corrupted"), e.Exception);
         }
 
         private static void AddServiceStartupOption(InstallHostSettings settings, IEnumerable<string> paths)
@@ -72,7 +74,7 @@ namespace HostBox
             {
                 if (system == null)
                 {
-                    Logger.Error(@"Не удалось найти в системном реестре ключ HKEY_LOCAL_MACHINE\SYSTEM");
+                    Logger.Error(@"Could not find the registry key HKEY_LOCAL_MACHINE\SYSTEM");
                     return;
                 }
 
@@ -80,7 +82,7 @@ namespace HostBox
                 {
                     if (currentControlSet == null)
                     {
-                        Logger.Error(@"Не удалось найти в системно реестре ключ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet");
+                        Logger.Error(@"Could not find the registry key HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet");
                         return;
                     }
 
@@ -88,7 +90,7 @@ namespace HostBox
                     {
                         if (services == null)
                         {
-                            Logger.Error(@"Не удалось найти в системно реестре ключ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services");
+                            Logger.Error(@"Could not find the registry key HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services");
                             return;
                         }
 
@@ -96,7 +98,7 @@ namespace HostBox
                         {
                             if (service == null)
                             {
-                                Logger.Error(@"Не удалось найти в системно реестре ключ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\" + settings.ServiceName);
+                                Logger.Error($@"Could not find the registry key HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\{settings.ServiceName}");
                                 return;
                             }
 

@@ -3,15 +3,15 @@
 namespace HostBox
 {
     /// <summary>
-    /// Фабрика конфигураций приложения.
+    /// Application configuration factory
     /// </summary>
     internal interface IApplicationConfigurationFactory
     {
         /// <summary>
-        /// Создает первоначальную конфигурацию приложения.
+        /// Create initial configuration of the application
         /// </summary>
-        /// <param name="componentPaths">Список путей с исполняемым кодом загружаемых компонентов.</param>
-        /// <returns>Первоначальная конфигурация приложения.</returns>
+        /// <param name="componentPaths"> Components paths to executable code of the components </param>
+        /// <returns> Initial configuration </returns>
         IApplicationConfiguration CreateApplicationConfiguration(IEnumerable<string> componentPaths);
     }
 }

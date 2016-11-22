@@ -5,22 +5,22 @@ using HostShim;
 namespace HostBox
 {
     /// <summary>
-    /// Конфигурация компонента приложения. 
-    /// Используется для управления ходом выполнения компонента.
+    /// Component configuration
+    /// It is used to manage component execution
     /// </summary>
     public interface IComponentConfiguration
     {
         /// <summary>
-        /// Домен приложения загружаемого компонента.
-        /// Используется в случае, когда компонент загружается в независимый от основного приложения домен приложения.
-        /// В случае загрузки в основной домен приложения, может быть либо <c>null</c>, либо равен основному домену приложения.
+        /// Component application domaint
+        /// It is used when component is loading into the separate application domain
+        /// In case, when component was loaded into the main domain may be null or equals to the main application domain
         /// </summary>
         AppDomain ComponentDomain { get; set; }
 
         /// <summary>
-        /// Загружаемый компонент приложения.
-        /// Используется для управления компонентом.
-        /// Отвечает за загрузку исполняемого кода компонента в домен приложений.
+        /// Application component
+        /// It is used for component management
+        /// Responsible for loading executable code into the application domain
         /// </summary>
         IComponent Component { get; set; }
     }

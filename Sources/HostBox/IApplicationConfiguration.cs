@@ -3,27 +3,26 @@
 namespace HostBox
 {
     /// <summary>
-    /// Конфигурация приложения. 
-    /// Используется для контроля за ходом выполнения приложения и обеспечивает 
-    /// возможность менять поведение приложения во время выполнения.
+    /// Application configuration.
+    /// It is used for application execution monitoring 
+    /// and provides the ability to change the behavior of the application at runtime
     /// </summary>
     public interface IApplicationConfiguration
     {
         /// <summary>
-        /// Пути к загружаемым компонентам приложения.
+        /// Application components paths
         /// </summary>
         ICollection<string> ComponentPaths { get; set; }
 
         /// <summary>
-        /// Ответственный за управление загружаемыми компонентами.
-        /// Отвечает за загрузку, выгрузку, запуск и остановку компонентов.
+        /// Responsible for managing loaded components:
+        /// load, unload, start and stop components
         /// </summary>
         IComponentManager ComponentManager { get; set; }
 
         /// <summary>
-        /// Коллекция конфигураций загруженных компонентов.
-        /// Которые используются для контроля за кодом выполнения загружаемого компонента.
-        /// Обеспечивают возможность менять поведение загружаемого компонента во время выполнения.
+        /// Collection of the configuration loaded components
+        /// Provides the ability to change the behavior of the application at runtime
         /// </summary>
         ICollection<IComponentConfiguration> ComponentConfigurations { get; set; }
     }

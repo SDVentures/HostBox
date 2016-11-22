@@ -6,8 +6,8 @@ using Common.Logging;
 namespace HostBox
 {
     /// <summary>
-    /// Управляющий компонентами.
-    /// Выполняет работы по загрузке компонентов, выгрузке компонентов, остановке и запуску.
+    /// Managing components
+    /// Performs loading, unloading, stopping and starting components
     /// </summary>
     public class ComponentManager : IComponentManager
     {
@@ -20,11 +20,11 @@ namespace HostBox
         private readonly IAppDomainFactory appDomainFactory;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="ComponentManager"/>.
+        /// Initializes a new instance of the class <see cref="ComponentManager"/>.
         /// </summary>
-        /// <param name="componentFactory">Фабрика компонентов.</param>
-        /// <param name="appDomainSetupFactory">Фабрика конфигурации домена приложений, в который загружается компонент.</param>
-        /// <param name="appDomainFactory">Фабрика домена приложений загружаемых компонентов.</param>
+        /// <param name="componentFactory"> Component factory. </param>
+        /// <param name="appDomainSetupFactory"> Application domain configuration factory, in which component loads. </param>
+        /// <param name="appDomainFactory"> Component application domain factory. </param>
         public ComponentManager(IComponentFactory componentFactory, IAppDomainSetupFactory appDomainSetupFactory, IAppDomainFactory appDomainFactory)
         {
             this.componentFactory = componentFactory;
@@ -33,9 +33,9 @@ namespace HostBox
         }
 
         /// <summary>
-        /// Загружает компоненты в приложение, на основе полученной конфигурации.
+        /// Load components into application, based on the received configuration.
         /// </summary>
-        /// <param name="configuration">Конфигурация приложения.</param>
+        /// <param name="configuration"> Application configuration. </param>
         public virtual void LoadComponents(IApplicationConfiguration configuration)
         {
             if (configuration.ComponentPaths.Count == 0)
@@ -51,10 +51,10 @@ namespace HostBox
         }
 
         /// <summary>
-        /// Выгружает компоненты из приложения, которые указаны в конфигурации приложения. 
-        /// Компоненты выгружаются в порядке обратном порядку загрузки приложения.
+        /// Unload component from the application, which are mentioned in the application configuration
+        /// Components unloading in the reverse order of the loading
         /// </summary>
-        /// <param name="configuration">Конфигурация приложения.</param>
+        /// <param name="configuration"> Application configuration. </param>
         public virtual void UnloadComponents(IApplicationConfiguration configuration)
         {
             foreach (var componentConfiguration in configuration.ComponentConfigurations.Reverse())
@@ -74,10 +74,10 @@ namespace HostBox
         }
 
         /// <summary>
-        /// Приостанавливает работу компонентов приложения из списка компонентов в конфигурации приложения.
-        /// Компоненты приостанавливают работу в порядке обратном порядку загрузки компонентов.
+        /// Pause work of the component from the list of components based on configuration
+        /// Components pausing in the reverse order of the loading
         /// </summary>
-        /// <param name="configuration">Конфигурация приложения.</param>
+        /// <param name="configuration"> Application configuration. </param>
         public virtual void PauseComponents(IApplicationConfiguration configuration)
         {
             foreach (var componentConfiguration in configuration.ComponentConfigurations.Reverse())
@@ -89,9 +89,9 @@ namespace HostBox
         }
 
         /// <summary>
-        /// Возобновляет работу компонентов приложения.
+        /// Resume work of the components
         /// </summary>
-        /// <param name="configuration">Конфигурация приложения.</param>
+        /// <param name="configuration"> Application configuration. </param>
         public virtual void ResumeComponents(IApplicationConfiguration configuration)
         {
             foreach (var componentConfiguration in configuration.ComponentConfigurations)
@@ -103,10 +103,10 @@ namespace HostBox
         }
 
         /// <summary>
-        /// Загружает компонент на основе предоставленной конфигурации.
+        /// Load component based on given configuration
         /// </summary>
-        /// <param name="configuration">Конфигурация приложения.</param>
-        /// <param name="componentPath">Путь с исполняемым кодом компонента.</param>
+        /// <param name="configuration"> Application configuration. </param>
+        /// <param name="componentPath"> Path to executable code of the component. </param>
         protected virtual void LoadComponent(IApplicationConfiguration configuration, string componentPath)
         {
             Logger.Info(m => m("Загружается компонент из {0}", componentPath));
@@ -126,9 +126,9 @@ namespace HostBox
         }
 
         /// <summary>
-        /// Выгружает компонент.
+        /// Unload component
         /// </summary>
-        /// <param name="componentConfiguration">Конфигурация компонента подлежащего выгрузке.</param>
+        /// <param name="componentConfiguration"> Configuration of the component to be unloaded. </param>
         protected virtual void UnloadComponent(IComponentConfiguration componentConfiguration)
         {
             Logger.Info(m => m("Выгружается компонент из {0}", componentConfiguration.ComponentDomain.FriendlyName));

@@ -3,17 +3,17 @@
 namespace HostBox
 {
     /// <summary>
-    /// Фабрика домена приложения загружаемого компонента.
+    /// Component application domain factory
     /// </summary>
     public interface IAppDomainFactory
     {
         /// <summary>
-        /// Создает домен приложения загружаемого компонента.
+        /// Create application domain of the loading component
         /// </summary>
-        /// <param name="componentPath">Путь к исполняемому коду загружаемого компонента.</param>
-        /// <param name="hostDomain">Основной домен приложения.</param>
-        /// <param name="appDomainSetup">Конфигурация создаваемого домена приложения для загружаемого компонента.</param>
-        /// <returns>Домен приложения для загружаемого компонента.</returns>
+        /// <param name="componentPath"> Path to executable code of the component. </param>
+        /// <param name="hostDomain"> Main application domain. </param>
+        /// <param name="appDomainSetup"> Application domain configuration for the loading component. </param>
+        /// <returns> Application domain for the loading component. </returns>
         AppDomain CreateAppDomain(string componentPath, AppDomain hostDomain, AppDomainSetup appDomainSetup);
     }
 }
