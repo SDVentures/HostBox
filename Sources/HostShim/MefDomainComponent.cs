@@ -14,19 +14,23 @@ using HostBox.Borderline;
 namespace HostShim
 {
     /// <summary>
-    /// Загрузчик, который устанавливается в домен приложения и выполняет загрузку компонентов приложения. 
+    /// Loader, which installes into application domain and loads components
     /// </summary>
     public class MefDomainComponent : MarshalByRefObject, IComponent
     {
+        private readonly bool hostboxAsyncStart;
+
         private static readonly ManualResetEvent CanStopComponentEvent = new ManualResetEvent(true);
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="MefDomainComponent"/>. 
         /// </summary>
-        /// <param name="componentPath">  Путь к исполняемым модулям компонента. </param>
-        public MefDomainComponent(string componentPath)
+        /// <param name="componentPath"> Path to the executable modules </param>
+        /// <param name="hostboxAsyncStart"> State of feature 'async start' in hostbox configuration </param>
+        public MefDomainComponent(string componentPath, bool hostboxAsyncStart)
         {
             this.Path = componentPath;
+            this.hostboxAsyncStart = hostboxAsyncStart;
         }
 
         /// <inheritdoc />
@@ -43,16 +47,21 @@ namespace HostShim
             Directory.SetCurrentDirectory(this.Path);
             TaskScheduler.UnobservedTaskException += this.UnobservedTaskException;
 
-            string asyncStart = ConfigurationManager.AppSettings[nameof(asyncStart)] ?? false.ToString();
-            if (asyncStart.Equals(false.ToString(), StringComparison.OrdinalIgnoreCase))
+            var asyncStart = false;
+            if (ConfigurationManager.AppSettings[nameof(asyncStart)] != null)
             {
-                this.StartInternal();
+                bool.TryParse(ConfigurationManager.AppSettings[nameof(asyncStart)], out asyncStart);
+            }
+
+            if (asyncStart || this.hostboxAsyncStart)
+            {
+                CanStopComponentEvent.Reset();
+                Task.Factory.StartNew(this.StartInternal, TaskCreationOptions.LongRunning)
+                    .ContinueWith(t => CanStopComponentEvent.Set());
                 return;
             }
 
-            CanStopComponentEvent.Reset();
-            Task.Factory.StartNew(this.StartInternal, TaskCreationOptions.LongRunning)
-                .ContinueWith(t => CanStopComponentEvent.Set());
+            this.StartInternal();
         }
 
         /// <inheritdoc />

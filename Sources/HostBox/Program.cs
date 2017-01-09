@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,7 +26,14 @@ namespace HostBox
         {
             var appDomainSetupFactory = new AppDomainSetupFactory();
             var appDomainFactory = new AppDomainFactory();
-            var componentFactory = new DomainComponentFactory();
+
+            var asyncStart = false;
+            if (ConfigurationManager.AppSettings[nameof(asyncStart)] != null)
+            {
+                bool.TryParse(ConfigurationManager.AppSettings[nameof(asyncStart)], out asyncStart);
+            }
+
+            var componentFactory = new DomainComponentFactory(asyncStart);
             var componentManager = new ComponentManager(componentFactory, appDomainSetupFactory, appDomainFactory);
             var applicationConfigurationFactory = new ApplicationConfigurationFactory(componentManager);
 

@@ -7,12 +7,19 @@ namespace HostBox
 {
     internal class DomainComponentFactory : IComponentFactory
     {
-        public IComponent CreateComponent(string componentPath, AppDomain targetDomain, AppDomain hostDomain)
+        private readonly bool asyncStart;
+
+        public DomainComponentFactory(bool asyncStart)
         {
-            return CreateMefDomainComponent(componentPath, targetDomain);
+            this.asyncStart = asyncStart;
         }
 
-        private static IComponent CreateMefDomainComponent(string componentPath, AppDomain targetDomain)
+        public IComponent CreateComponent(string componentPath, AppDomain targetDomain, AppDomain hostDomain)
+        {
+            return CreateMefDomainComponent(componentPath, this.asyncStart, targetDomain);
+        }
+
+        private static IComponent CreateMefDomainComponent(string componentPath, bool asyncStart, AppDomain targetDomain)
         {
             return (IComponent)targetDomain.CreateInstanceFromAndUnwrap(
                 typeof(MefDomainComponent).Assembly.Location,
@@ -20,7 +27,7 @@ namespace HostBox
                 false,
                 BindingFlags.CreateInstance,
                 null,
-                new object[] { componentPath },
+                new object[] { componentPath, asyncStart },
                 null,
                 null);
         }
