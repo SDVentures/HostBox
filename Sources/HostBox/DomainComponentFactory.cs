@@ -16,10 +16,10 @@ namespace HostBox
 
         public IComponent CreateComponent(string componentPath, AppDomain targetDomain, AppDomain hostDomain)
         {
-            return CreateMefDomainComponent(componentPath, this.asyncStart, targetDomain);
+            return this.CreateMefDomainComponent(componentPath, targetDomain);
         }
 
-        private static IComponent CreateMefDomainComponent(string componentPath, bool asyncStart, AppDomain targetDomain)
+        private IComponent CreateMefDomainComponent(string componentPath, AppDomain targetDomain)
         {
             return (IComponent)targetDomain.CreateInstanceFromAndUnwrap(
                 typeof(MefDomainComponent).Assembly.Location,
@@ -27,7 +27,7 @@ namespace HostBox
                 false,
                 BindingFlags.CreateInstance,
                 null,
-                new object[] { componentPath, asyncStart },
+                new object[] { componentPath, this.asyncStart },
                 null,
                 null);
         }
