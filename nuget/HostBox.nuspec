@@ -8,7 +8,7 @@
     <summary>@summary@</summary>
     <licenseUrl>https://github.com/SDVentures/HostBox/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/SDVentures/HostBox</projectUrl>
-    <iconUrl>https://github.com/SDVentures/HostBox/icon.png</iconUrl>
+    <iconUrl>https://github.com/SDVentures/HostBox/blob/master/nuget/Hostbox-128.png?raw=true</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>@description@</description>
     <releaseNotes>@releaseNotes@</releaseNotes>
