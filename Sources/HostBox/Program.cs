@@ -1,122 +1,161 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
+using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 
 using Common.Logging;
+using Common.Logging.Configuration;
 
-using Microsoft.Win32;
-
-using Topshelf;
-using Topshelf.Common.Logging;
-using Topshelf.Runtime;
+using Microsoft.Extensions.CommandLineUtils;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace HostBox
 {
     internal class Program
     {
-        private const string PathSeparator = ";";
+        private static ILog Logger { get; set; }
 
-        private const string ServiceName = "HostBox";
-
-        private static readonly ILog Logger = LogManager.GetLogger<Program>();
-
-        private static void Main()
+        private static async Task Main(string[] args = null)
         {
-            var appDomainSetupFactory = new AppDomainSetupFactory();
-            var appDomainFactory = new AppDomainFactory();
+            var commandLineArgs = GetCommandLineArgs(args);
 
-            var asyncStart = false;
-            if (ConfigurationManager.AppSettings[nameof(asyncStart)] != null)
+            if (commandLineArgs == null)
             {
-                bool.TryParse(ConfigurationManager.AppSettings[nameof(asyncStart)], out asyncStart);
+                return;
             }
 
-            var componentFactory = new DomainComponentFactory(asyncStart);
-            var componentManager = new ComponentManager(componentFactory, appDomainSetupFactory, appDomainFactory);
-            var applicationConfigurationFactory = new ApplicationConfigurationFactory(componentManager);
+            var componentPath = Path.GetFullPath(commandLineArgs.Path, Directory.GetCurrentDirectory());
 
-            TaskScheduler.UnobservedTaskException += UnobservedTaskException;
+            var builder = new HostBuilder()
+                .ConfigureHostConfiguration(
+                    config =>
+                        {
+                            config.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
 
-            HostFactory.Run(
-                configuration =>
-                    {
-                        IEnumerable<string> paths = new List<string>();
-                        configuration.AddCommandLineDefinition(
-                            "path",
-                            value =>
-                                {
-                                    paths = value.Split(
-                                        new[] { PathSeparator },
-                                        StringSplitOptions.RemoveEmptyEntries).ToList();
-                                });
-                        configuration.UseCommonLogging();
-                        configuration.AfterInstall(settings => AddServiceStartupOption(settings, paths));
-                        configuration.SetServiceName(ServiceName);
-                        configuration.SetDisplayName(ServiceName);
-                        configuration.SetDescription(ServiceName);
-                        configuration.Service<Application>(
-                            service =>
-                                {
-                                    service.ConstructUsing(settings => new Application(paths, applicationConfigurationFactory));
-                                    service.WhenStarted((application, control) => application.Start());
-                                    service.WhenStopped((application, control) => application.Stop());
-                                    service.WhenPaused((application, control) => application.Pause());
-                                    service.WhenContinued((application, control) => application.Resume());
-                                    service.WhenShutdown((application, control) => application.Shutdown());
-                                });
-                        configuration.ApplyCommandLine();
-                    });
-        }
+                            config.AddJsonFile("hostsettings.json", true, true);
 
-        private static void UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
-        {
-            e.SetObserved();
-            Logger.Warn(m => m("Unhandled exception was intercepted. The state of the system may be corrupted"), e.Exception);
-        }
+                            ConfigureLogging(config.Build());
 
-        private static void AddServiceStartupOption(InstallHostSettings settings, IEnumerable<string> paths)
-        {
-            using (RegistryKey system = Registry.LocalMachine.OpenSubKey("System"))
+                            Logger = LogManager.GetLogger<Program>();
+
+                            Logger.Trace(m => m("Starting hostbox."));
+                        })
+                .ConfigureAppConfiguration(
+                    (ctx, config) =>
+                        {
+                            Logger.Trace(m => m("Loading hostable component using path [{0}].", componentPath));
+
+                            var componentBasePath = Path.GetDirectoryName(componentPath);
+
+                            config.SetBasePath(componentBasePath);
+
+                            var configFiles = Directory.GetFiles(componentBasePath, "*.settings.json", SearchOption.AllDirectories);
+
+                            foreach (var configFile in configFiles)
+                            {
+                                config.AddJsonFile(configFile, false, true);
+
+                                Logger.Trace(m => m("Configuration file [{0}] is loaded.", configFile));
+                            }
+                        })
+                .ConfigureServices(
+                    (ctx, services) =>
+                        {
+                            services
+                                .AddSingleton(provider => new ComponentConfig
+                                                              {
+                                                                  Path = componentPath,
+                                                                  LoggerFactory = LogManager.GetLogger
+                                                              });
+
+                            services.AddSingleton<IHostedService, Application>();
+                        });
+
+            using (var host = builder.Build())
             {
-                if (system == null)
+                try
                 {
-                    Logger.Error(@"Could not find the registry key HKEY_LOCAL_MACHINE\SYSTEM");
+                    await host.StartAsync();
+                }
+                catch (Exception e)
+                {
+                    Logger.Fatal("Unable to start host due exception.", e);
                     return;
                 }
 
-                using (RegistryKey currentControlSet = system.OpenSubKey("CurrentControlSet"))
+                try
                 {
-                    if (currentControlSet == null)
-                    {
-                        Logger.Error(@"Could not find the registry key HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet");
-                        return;
-                    }
-
-                    using (RegistryKey services = currentControlSet.OpenSubKey("Services"))
-                    {
-                        if (services == null)
-                        {
-                            Logger.Error(@"Could not find the registry key HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services");
-                            return;
-                        }
-
-                        using (RegistryKey service = services.OpenSubKey(settings.ServiceName, true))
-                        {
-                            if (service == null)
-                            {
-                                Logger.Error($@"Could not find the registry key HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\{settings.ServiceName}");
-                                return;
-                            }
-
-                            var imagePath = (string)service.GetValue("ImagePath");
-                            imagePath += " -path:" + string.Join(PathSeparator, paths);
-                            service.SetValue("ImagePath", imagePath);
-                        }
-                    }
+                    await host.WaitForShutdownAsync();
+                }
+                catch (Exception e)
+                {
+                    Logger.Fatal("Unable to stop host graceful due exception.", e);
                 }
             }
+        }
+
+        private static CommandLineArgs GetCommandLineArgs(string[] source)
+        {
+            var cmdLnApp = new CommandLineApplication { Name = "host", FullName = "HostBox" };
+
+            cmdLnApp.ShortVersionGetter = cmdLnApp.LongVersionGetter = () =>
+                {
+                    var executingAssembly = Assembly.GetExecutingAssembly();
+
+                    var attr = executingAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+
+                    return attr?.InformationalVersion ?? "1.0.0.0";
+                };
+
+            var pathOpt = cmdLnApp.Option(
+                "-p|--path <path>",
+                "Path to hostable component.",
+                CommandOptionType.SingleValue);
+
+            cmdLnApp.VersionOption("-v|--version", cmdLnApp.ShortVersionGetter, cmdLnApp.LongVersionGetter);
+
+            cmdLnApp.HelpOption("-?|-h|--help");
+
+            cmdLnApp.OnExecute(
+                () =>
+                    {
+                        if (!pathOpt.HasValue())
+                        {
+                            pathOpt.Values.Add(AppDomain.CurrentDomain.BaseDirectory);
+                        }
+
+                        return 0;
+                    });
+
+            try
+            {
+                cmdLnApp.Execute(source);
+            }
+            catch (Exception)
+            {
+                cmdLnApp.ShowHelp();
+                return null;
+            }
+
+            return cmdLnApp.IsShowingInformation 
+                       ? null 
+                       : new CommandLineArgs { Path = pathOpt.Value() };
+        }
+
+        private static void ConfigureLogging(IConfiguration config)
+        {
+            var logConfiguration = new LogConfiguration();
+
+            config.GetSection("common:logging").Bind(logConfiguration);
+
+            LogManager.Configure(logConfiguration);
+        }
+
+        private class CommandLineArgs
+        {
+            public string Path { get; set; }
         }
     }
 }

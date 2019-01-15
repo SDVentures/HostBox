@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "Local": {
+      "commandName": "Project",
+      "commandLineArgs": "--path c:\\!work\\!!!Corefying\\Corefied\\git\\dialogs.letters.repository\\build\\"
+    },
+    "Remote": {
+      "commandName": "Executable",
+      "executablePath": "dotnet",
+      "commandLineArgs": "c:\\!work\\!!!Corefying\\Corefied\\HostBox\\build\\publish\\HostBox.dll --path c:\\!work\\!!!Corefying\\Corefied\\git\\dialogs.letters.repository\\build\\Dialogs.Letters.Repository.Instance.dll"
+    }
+  }
+}
