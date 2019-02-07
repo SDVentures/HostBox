@@ -1,4 +1,8 @@
-﻿## 2.0.0-core11
+﻿## 2.0.0-core12
+  * Make --path command line argument mandatory.
+  * Updated McMaster.NETCore.Plugins dependency to 0.2.2-rtm.41
+
+## 2.0.0-core11
   Migration to .net core 2.0
 
 ## 1.0.3

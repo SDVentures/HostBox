@@ -6,25 +6,25 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.1</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.0-core11</Version>
-    <PackageReleaseNotes>Added a mechanism loading component assemblies to separate context.</PackageReleaseNotes>
+    <Version>2.0.0-core14</Version>
+    <PackageReleaseNotes>Added a mechanism loading specific component configuration depending on current environment.</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>
     <Copyright>Copyright @ Social Discovery Ventures 2018</Copyright>
     <Description>The host of plugin applications can be executed as a console application or as a windows service.</Description>
     <PackageTags>host plugin service</PackageTags>
-    <PackageOutputPath>../../temp</PackageOutputPath>
+    <PackageOutputPath>../../package</PackageOutputPath>
     <IsTool>true</IsTool>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>host</ToolCommandName>
-    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Common.Logging" Version="3.4.1" />
     <PackageReference Include="HostBox.Borderline" Version="2.0.0-core3" />
-    <PackageReference Include="McMaster.NETCore.Plugins" Version="0.2.1" />
+    <PackageReference Include="McMaster.NETCore.Plugins" Version="0.2.2-rtm.41" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />

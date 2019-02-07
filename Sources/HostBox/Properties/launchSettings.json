@@ -2,7 +2,10 @@
   "profiles": {
     "Local": {
       "commandName": "Project",
-      "commandLineArgs": "--path c:\\!work\\!!!Corefying\\Corefied\\git\\dialogs.letters.repository\\build\\"
+      "commandLineArgs": "--path c:\\!work\\!!!Corefying\\Corefied\\git\\dialogs.letters.repository\\build\\Dialogs.Letters.Repository.Instance.dll",
+      "environmentVariables": {
+        "environment": "Development"
+      }
     },
     "Remote": {
       "commandName": "Executable",

@@ -32,6 +32,8 @@ namespace HostBox
                 .ConfigureHostConfiguration(
                     config =>
                         {
+                            config.AddEnvironmentVariables();
+
                             config.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
 
                             config.AddJsonFile("hostsettings.json", true, true);
@@ -51,7 +53,8 @@ namespace HostBox
 
                             config.SetBasePath(componentBasePath);
 
-                            var configFiles = Directory.GetFiles(componentBasePath, "*.settings.json", SearchOption.AllDirectories);
+                            var configProvider = new ConfigFileNamesProvider(ctx.HostingEnvironment, componentBasePath);
+                            var configFiles = configProvider.EnumerateConfigFiles();
 
                             foreach (var configFile in configFiles)
                             {
@@ -111,7 +114,7 @@ namespace HostBox
 
             var pathOpt = cmdLnApp.Option(
                 "-p|--path <path>",
-                "Path to hostable component.",
+                "Path to hostable component",
                 CommandOptionType.SingleValue);
 
             cmdLnApp.VersionOption("-v|--version", cmdLnApp.ShortVersionGetter, cmdLnApp.LongVersionGetter);
@@ -123,7 +126,7 @@ namespace HostBox
                     {
                         if (!pathOpt.HasValue())
                         {
-                            pathOpt.Values.Add(AppDomain.CurrentDomain.BaseDirectory);
+                            cmdLnApp.ShowHelp();
                         }
 
                         return 0;
