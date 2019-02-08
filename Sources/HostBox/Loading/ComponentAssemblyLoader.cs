@@ -21,5 +21,11 @@ namespace HostBox.Loading
         {
             return this.inner.LoadAssembly(name);
         }
+
+        /// <inheritdoc />
+        public Assembly LoadDefault()
+        {
+            return this.inner.LoadDefaultAssembly();
+        }
     }
 }

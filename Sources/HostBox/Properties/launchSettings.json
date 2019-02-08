@@ -2,15 +2,18 @@
   "profiles": {
     "Local": {
       "commandName": "Project",
-      "commandLineArgs": "--path c:\\!work\\!!!Corefying\\Corefied\\git\\dialogs.letters.repository\\build\\Dialogs.Letters.Repository.Instance.dll",
+      "commandLineArgs": "--path c:\\!work\\!!!Corefying\\Corefied\\git\\Exo.Alipay.Gateway\\Sources\\Exo.Alipay.Gateway.Instance\\bin\\Debug\\netcoreapp2.1\\Exo.Alipay.Gateway.Instance.dll",
       "environmentVariables": {
         "environment": "Development"
       }
     },
     "Remote": {
       "commandName": "Executable",
-      "executablePath": "dotnet",
-      "commandLineArgs": "c:\\!work\\!!!Corefying\\Corefied\\HostBox\\build\\publish\\HostBox.dll --path c:\\!work\\!!!Corefying\\Corefied\\git\\dialogs.letters.repository\\build\\Dialogs.Letters.Repository.Instance.dll"
+      "executablePath": "c:\\!work\\!!!Corefying\\Corefied\\git\\Exo.Alipay.Gateway\\tools\\host.exe",
+      "commandLineArgs": "--path c:\\!work\\!!!Corefying\\Corefied\\git\\Exo.Alipay.Gateway\\Sources\\Exo.Alipay.Gateway.Instance\\bin\\Debug\\netcoreapp2.1\\Exo.Alipay.Gateway.Instance.dll",
+      "environmentVariables": {
+        "environment": "Development"
+      }
     }
   }
 }
