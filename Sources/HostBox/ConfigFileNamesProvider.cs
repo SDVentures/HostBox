@@ -30,6 +30,11 @@ namespace HostBox
             {
                 var fullPath = Path.Combine(this.basePath, path);
 
+                if (!Directory.Exists(fullPath))
+                {
+                    continue;
+                }
+
                 foreach (var file in Directory.GetFiles(fullPath, ConfigFilePattern, SearchOption.TopDirectoryOnly))
                 {
                     yield return file;

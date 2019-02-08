@@ -6,9 +6,8 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.1</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.0-core15</Version>
-    <PackageReleaseNotes>Updated dependency HostBox.BorderLine to 2.0.0-core4
-Implemented LoadDefault method of IAssemblyLoader interface in ComponentAssemblyLoader.</PackageReleaseNotes>
+    <Version>2.0.0-core16</Version>
+    <PackageReleaseNotes>Fixed an DirectoryNotFoundException raised when specific environment configuration folder does not exists.</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>
