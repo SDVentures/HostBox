@@ -64,15 +64,23 @@ namespace HostBox
 
             this.description.StartTask
                 .ContinueWith(
-                    t => DelayStart.TrySetResult(null),
-                    cancellationToken,
-                    TaskContinuationOptions.NotOnFaulted,
-                    TaskScheduler.Current)
-                .ContinueWith(
-                    t => DelayStart.TrySetException(t.Exception),
+                    t =>
+                        {
+                            DelayStart.TrySetException(t.Exception);
+                            return DelayStart;
+                        },
                     cancellationToken,
                     TaskContinuationOptions.OnlyOnFaulted,
-                    TaskScheduler.Current);
+                    TaskScheduler.Default)
+                .ContinueWith(
+                    t =>
+                        {
+                            DelayStart.TrySetResult(null);
+                            return DelayStart;
+                        },
+                    cancellationToken,
+                    TaskContinuationOptions.NotOnFaulted,
+                    TaskScheduler.Default);
 
             return DelayStart.Task;
         }
@@ -93,6 +101,24 @@ namespace HostBox
                         },
                     cancellationToken,
                     TaskCreationOptions.LongRunning,
+                    TaskScheduler.Default)
+                .ContinueWith(
+                    t =>
+                        {
+                            DelayStop.TrySetException(t.Exception);
+                            return DelayStop;
+                        },
+                    cancellationToken,
+                    TaskContinuationOptions.OnlyOnFaulted,
+                    TaskScheduler.Default)
+                .ContinueWith(
+                    t =>
+                        {
+                            DelayStop.TrySetResult(null);
+                            return DelayStop;
+                        },
+                    cancellationToken,
+                    TaskContinuationOptions.NotOnFaulted,
                     TaskScheduler.Default);
 
             componentStopTask.ContinueWith(t => DelayStop.TrySetResult(null), cancellationToken);
