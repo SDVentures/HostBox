@@ -30,11 +30,11 @@ namespace HostBox.Configuration
         /// <inheritdoc />
         public T BindSection<T>(string path) where T : new()
         {
-            var result = new T();
+            var section = this.innerSection.GetSection(path);
 
-            this.innerSection.GetSection(path).Bind(result);
-
-            return result;
+            return section.Exists()
+                       ? section.Get<T>()
+                       : default;
         }
 
         /// <inheritdoc />
