@@ -2,7 +2,7 @@
   "profiles": {
     "Local": {
       "commandName": "Project",
-      "commandLineArgs": "--path c:\\!work\\!!!Corefying\\Corefied\\git\\Exo.Alipay.Gateway\\Sources\\Exo.Alipay.Gateway.Instance\\bin\\Debug\\netcoreapp2.1\\Exo.Alipay.Gateway.Instance.dll",
+      "commandLineArgs": "--path c:\\!work\\!!!Corefying\\Corefied\\dialogs.letters.repository\\publish\\Dialogs.Letters.Repository.Instance.dll",
       "environmentVariables": {
         "environment": "Development"
       }

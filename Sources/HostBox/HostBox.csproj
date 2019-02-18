@@ -6,8 +6,8 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.1</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.0-core18</Version>
-    <PackageReleaseNotes>Changed behavior of ComponentConfiguration and ComponentConfigurationSection: BindSection returns null if configuration path does not exists.</PackageReleaseNotes>
+    <Version>2.0.0-core19</Version>
+    <PackageReleaseNotes>Added a mechanism filling configuration template using values file.</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>

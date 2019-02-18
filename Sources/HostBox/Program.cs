@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 using Common.Logging;
 using Common.Logging.Configuration;
 
+using HostBox.Configuration;
+
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -54,11 +57,25 @@ namespace HostBox
                             config.SetBasePath(componentBasePath);
 
                             var configProvider = new ConfigFileNamesProvider(ctx.HostingEnvironment, componentBasePath);
-                            var configFiles = configProvider.EnumerateConfigFiles();
 
-                            foreach (var configFile in configFiles)
+                            var templateValuesSource =
+                                new JsonConfigurationSource
+                                    {
+                                        Path = configProvider.GetTemplateValuesFile(),
+                                        FileProvider = null,
+                                        ReloadOnChange = true,
+                                        Optional = true
+                                    };
+
+                            templateValuesSource.ResolveFileProvider();
+
+                            var templateValuesProvider = templateValuesSource.Build(config);
+
+                            templateValuesProvider.Load();
+
+                            foreach (var configFile in configProvider.EnumerateConfigFiles())
                             {
-                                config.AddJsonFile(configFile, false, true);
+                                config.AddJsonTemplateFile(configFile, false, true, templateValuesProvider, commandLineArgs.PlaceholderPattern);
 
                                 Logger.Trace(m => m("Configuration file [{0}] is loaded.", configFile));
                             }
@@ -117,6 +134,11 @@ namespace HostBox
                 "Path to hostable component",
                 CommandOptionType.SingleValue);
 
+            var patternOpt = cmdLnApp.Option(
+                "--placeholder-pattern",
+                "Pattern of placeholders to find and replace into the component configuration (default is '!{*}')",
+                CommandOptionType.SingleValue);
+
             cmdLnApp.VersionOption("-v|--version", cmdLnApp.ShortVersionGetter, cmdLnApp.LongVersionGetter);
 
             cmdLnApp.HelpOption("-?|-h|--help");
@@ -127,6 +149,11 @@ namespace HostBox
                         if (!pathOpt.HasValue())
                         {
                             cmdLnApp.ShowHelp();
+                        }
+
+                        if (!patternOpt.HasValue())
+                        {
+                            patternOpt.Values.Add("!{*}");
                         }
 
                         return 0;
@@ -144,7 +171,7 @@ namespace HostBox
 
             return cmdLnApp.IsShowingInformation 
                        ? null 
-                       : new CommandLineArgs { Path = pathOpt.Value() };
+                       : new CommandLineArgs { Path = pathOpt.Value(), PlaceholderPattern = patternOpt.Value() };
         }
 
         private static void ConfigureLogging(IConfiguration config)
@@ -159,6 +186,8 @@ namespace HostBox
         private class CommandLineArgs
         {
             public string Path { get; set; }
+
+            public string PlaceholderPattern { get; set; }
         }
     }
 }

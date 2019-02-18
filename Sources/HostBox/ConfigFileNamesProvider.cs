@@ -10,7 +10,11 @@ namespace HostBox
     {
         private const string SettingsPath = "settings";
 
+        private const string ValuesPath = "values";
+
         private const string ConfigFilePattern = "*.settings.json";
+
+        private const string TemplateValuesFile = "values.json";
 
         private readonly IHostingEnvironment environment;
 
@@ -20,6 +24,11 @@ namespace HostBox
         {
             this.environment = environment;
             this.basePath = basePath;
+        }
+
+        public string GetTemplateValuesFile()
+        {
+            return Path.Combine(this.basePath, SettingsPath, ValuesPath, TemplateValuesFile);
         }
 
         public IEnumerable<string> EnumerateConfigFiles()
