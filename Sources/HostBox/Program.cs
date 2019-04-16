@@ -63,7 +63,7 @@ namespace HostBox
                                     {
                                         Path = configProvider.GetTemplateValuesFile(),
                                         FileProvider = null,
-                                        ReloadOnChange = true,
+                                        ReloadOnChange = false,
                                         Optional = true
                                     };
 
