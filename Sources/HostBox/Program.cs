@@ -39,7 +39,7 @@ namespace HostBox
 
                             config.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
 
-                            config.AddJsonFile("hostsettings.json", true, true);
+                            config.AddJsonFile("hostsettings.json", true, false);
 
                             ConfigureLogging(config.Build());
 
@@ -75,7 +75,7 @@ namespace HostBox
 
                             foreach (var configFile in configProvider.EnumerateConfigFiles())
                             {
-                                config.AddJsonTemplateFile(configFile, false, true, templateValuesProvider, commandLineArgs.PlaceholderPattern);
+                                config.AddJsonTemplateFile(configFile, false, false, templateValuesProvider, commandLineArgs.PlaceholderPattern);
 
                                 Logger.Trace(m => m("Configuration file [{0}] is loaded.", configFile));
                             }
