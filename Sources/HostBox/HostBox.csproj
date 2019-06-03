@@ -6,12 +6,12 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.1</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.0-core22</Version>
-    <PackageReleaseNotes>Added a mechanism filling configuration template using values file.</PackageReleaseNotes>
+    <Version>2.0.0-core23</Version>
+    <PackageReleaseNotes>Changed environment variable name that define the name of the required configuration from 'environment' to 'instance'.</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>
-    <Copyright>Copyright @ Social Discovery Ventures 2018</Copyright>
+    <Copyright>Copyright @ Social Discovery Ventures 2019</Copyright>
     <Description>The host of plugin applications can be executed as a console application or as a windows service.</Description>
     <PackageTags>host plugin service</PackageTags>
     <PackageOutputPath>../../package</PackageOutputPath>

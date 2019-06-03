@@ -2,9 +2,9 @@
   "profiles": {
     "Local": {
       "commandName": "Project",
-      "commandLineArgs": "--path c:\\!work\\!!!Corefying\\Corefied\\dialogs.letters.repository\\publish\\Dialogs.Letters.Repository.Instance.dll",
+      "commandLineArgs": "--path c:\\!work\\!!!Corefying\\Corefied\\git\\credits.mall.broker\\build\\Credits.Mall.Broker.Instance.dll",
       "environmentVariables": {
-        "environment": "Development"
+        "INSTANCE": "Development"
       }
     },
     "Remote": {

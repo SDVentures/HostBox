@@ -18,6 +18,8 @@ namespace HostBox
 {
     internal class Program
     {
+        private const string ConfigurationNameEnvVariable = "instance";
+
         private static ILog Logger { get; set; }
 
         private static async Task Main(string[] args = null)
@@ -56,7 +58,11 @@ namespace HostBox
 
                             config.SetBasePath(componentBasePath);
 
-                            var configProvider = new ConfigFileNamesProvider(ctx.HostingEnvironment, componentBasePath);
+                            var configName = ctx.Configuration[ConfigurationNameEnvVariable];
+
+                            Logger.Info(m => m("Application was launched with configuration '{0}'.", configName));
+
+                            var configProvider = new ConfigFileNamesProvider(configName, componentBasePath);
 
                             var templateValuesSource =
                                 new JsonConfigurationSource

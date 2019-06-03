@@ -2,8 +2,6 @@
 using System.IO;
 using System.Linq;
 
-using Microsoft.Extensions.Hosting;
-
 namespace HostBox
 {
     public class ConfigFileNamesProvider
@@ -16,13 +14,13 @@ namespace HostBox
 
         private const string TemplateValuesFile = "values.json";
 
-        private readonly IHostingEnvironment environment;
+        private readonly string configName;
 
         private readonly string basePath;
 
-        public ConfigFileNamesProvider(IHostingEnvironment environment, string basePath)
+        public ConfigFileNamesProvider(string configName, string basePath)
         {
-            this.environment = environment;
+            this.configName = configName;
             this.basePath = basePath;
         }
 
@@ -53,12 +51,12 @@ namespace HostBox
 
         private IEnumerable<string> EnumerateEnvSubfolders()
         {
-            if (this.environment.IsProduction())
+            if (string.IsNullOrEmpty(this.configName))
             {
                 yield break;
             }
 
-            yield return Path.Combine(SettingsPath, this.environment.EnvironmentName.ToLower());
+            yield return Path.Combine(SettingsPath, this.configName.ToLower());
         }
     }
 }
