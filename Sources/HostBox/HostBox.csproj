@@ -19,6 +19,7 @@ Changed environment variable name that define the name of the required configura
     <IsTool>true</IsTool>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>host</ToolCommandName>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Common.Logging" Version="3.4.1" />
