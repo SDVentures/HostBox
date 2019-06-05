@@ -18,7 +18,7 @@ namespace HostBox
 {
     internal class Program
     {
-        private const string ConfigurationNameEnvVariable = "instance";
+        private const string ConfigurationNameEnvVariable = "configuration";
 
         private static ILog Logger { get; set; }
 
