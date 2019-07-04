@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading.Tasks;
 
 using Common.Logging;
@@ -22,6 +24,10 @@ namespace HostBox
 
         private static ILog Logger { get; set; }
 
+        static string ComponentPath;
+
+        static CommandLineArgs CommandLineArguments;
+
         private static async Task Main(string[] args = null)
         {
             var commandLineArgs = GetCommandLineArgs(args);
@@ -31,7 +37,13 @@ namespace HostBox
                 return;
             }
 
+            CommandLineArguments = commandLineArgs;
+
+            AssemblyLoadContext.Default.Resolving += Default_Resolving;
+
             var componentPath = Path.GetFullPath(commandLineArgs.Path, Directory.GetCurrentDirectory());
+
+            ComponentPath = componentPath;
 
             var builder = new HostBuilder()
                 .ConfigureHostConfiguration(
@@ -66,12 +78,12 @@ namespace HostBox
 
                             var templateValuesSource =
                                 new JsonConfigurationSource
-                                    {
-                                        Path = configProvider.GetTemplateValuesFile(),
-                                        FileProvider = null,
-                                        ReloadOnChange = false,
-                                        Optional = true
-                                    };
+                                {
+                                    Path = configProvider.GetTemplateValuesFile(),
+                                    FileProvider = null,
+                                    ReloadOnChange = false,
+                                    Optional = true
+                                };
 
                             templateValuesSource.ResolveFileProvider();
 
@@ -91,10 +103,10 @@ namespace HostBox
                         {
                             services
                                 .AddSingleton(provider => new ComponentConfig
-                                                              {
-                                                                  Path = componentPath,
-                                                                  LoggerFactory = LogManager.GetLogger
-                                                              });
+                                {
+                                    Path = componentPath,
+                                    LoggerFactory = LogManager.GetLogger
+                                });
 
                             services.AddSingleton<IHostedService, Application>();
                         });
@@ -122,6 +134,20 @@ namespace HostBox
             }
         }
 
+        private static Assembly Default_Resolving(AssemblyLoadContext loadContext, AssemblyName assemblyName)
+        {
+            var sharedLibrariesAbsolutePath = Path.Combine(Path.GetDirectoryName(ComponentPath), CommandLineArguments.SharedLibrariesPath);
+
+            var sharedLibPath = Path.Combine(sharedLibrariesAbsolutePath, $"{assemblyName.Name}.dll");
+
+            if (File.Exists(sharedLibPath))
+            {
+                return loadContext.LoadFromAssemblyPath(sharedLibPath);
+            }
+
+            return null;
+        }
+
         private static CommandLineArgs GetCommandLineArgs(string[] source)
         {
             var cmdLnApp = new CommandLineApplication { Name = "host", FullName = "HostBox" };
@@ -145,6 +171,11 @@ namespace HostBox
                 "Pattern of placeholders to find and replace into the component configuration (default is '!{*}')",
                 CommandOptionType.SingleValue);
 
+            var sharedOpt = cmdLnApp.Option(
+                "--shared-store-path",
+                "Directory path where additional dll dependencies located (resolved under component directory, default is 'shared')",
+                CommandOptionType.SingleValue);
+
             cmdLnApp.VersionOption("-v|--version", cmdLnApp.ShortVersionGetter, cmdLnApp.LongVersionGetter);
 
             cmdLnApp.HelpOption("-?|-h|--help");
@@ -162,6 +193,11 @@ namespace HostBox
                             patternOpt.Values.Add("!{*}");
                         }
 
+                        if (!sharedOpt.HasValue())
+                        {
+                            sharedOpt.Values.Add("shared");
+                        }
+
                         return 0;
                     });
 
@@ -175,9 +211,9 @@ namespace HostBox
                 return null;
             }
 
-            return cmdLnApp.IsShowingInformation 
-                       ? null 
-                       : new CommandLineArgs { Path = pathOpt.Value(), PlaceholderPattern = patternOpt.Value() };
+            return cmdLnApp.IsShowingInformation
+                       ? null
+                       : new CommandLineArgs { Path = pathOpt.Value(), PlaceholderPattern = patternOpt.Value(), SharedLibrariesPath = sharedOpt.Value() };
         }
 
         private static void ConfigureLogging(IConfiguration config)
@@ -194,6 +230,8 @@ namespace HostBox
             public string Path { get; set; }
 
             public string PlaceholderPattern { get; set; }
+
+            public string SharedLibrariesPath { get; set; }
         }
     }
 }

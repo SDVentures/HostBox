@@ -1,4 +1,7 @@
-﻿## 2.0.0-core12
+﻿## 2.0.1-core0
+  Added ability to load libraries from different directory to organise shared library storage
+  
+## 2.0.0-core12
   * Make --path command line argument mandatory.
   * Updated McMaster.NETCore.Plugins dependency to 0.2.2-rtm.41
 
