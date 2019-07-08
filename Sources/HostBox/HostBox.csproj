@@ -6,8 +6,8 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.1-core3</Version>
-    <PackageReleaseNotes>Added shared path probing in dependency location procedure</PackageReleaseNotes>
+    <Version>2.0.1-core4</Version>
+    <PackageReleaseNotes>Changed shared libraries path</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>
