@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.Loader;
 using System.Threading.Tasks;
 
 using Common.Logging;
@@ -23,11 +21,7 @@ namespace HostBox
         private const string ConfigurationNameEnvVariable = "configuration";
 
         private static ILog Logger { get; set; }
-
-        static string ComponentPath;
-
-        static CommandLineArgs CommandLineArguments;
-
+        
         private static async Task Main(string[] args = null)
         {
             var commandLineArgs = GetCommandLineArgs(args);
@@ -36,15 +30,9 @@ namespace HostBox
             {
                 return;
             }
-
-            CommandLineArguments = commandLineArgs;
-
-            AssemblyLoadContext.Default.Resolving += Default_Resolving;
-
+            
             var componentPath = Path.GetFullPath(commandLineArgs.Path, Directory.GetCurrentDirectory());
-
-            ComponentPath = componentPath;
-
+            
             var builder = new HostBuilder()
                 .ConfigureHostConfiguration(
                     config =>
@@ -132,20 +120,6 @@ namespace HostBox
                     Logger.Fatal("Unable to stop host graceful due exception.", e);
                 }
             }
-        }
-
-        private static Assembly Default_Resolving(AssemblyLoadContext loadContext, AssemblyName assemblyName)
-        {
-            var sharedLibrariesAbsolutePath = Path.Combine(Path.GetDirectoryName(ComponentPath), CommandLineArguments.SharedLibrariesPath);
-
-            var sharedLibPath = Path.Combine(sharedLibrariesAbsolutePath, $"{assemblyName.Name}.dll");
-
-            if (File.Exists(sharedLibPath))
-            {
-                return loadContext.LoadFromAssemblyPath(sharedLibPath);
-            }
-
-            return null;
         }
 
         private static CommandLineArgs GetCommandLineArgs(string[] source)

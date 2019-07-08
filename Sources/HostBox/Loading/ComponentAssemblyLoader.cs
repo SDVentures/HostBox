@@ -6,7 +6,7 @@ using McMaster.NETCore.Plugins;
 
 namespace HostBox.Loading
 {
-    public class ComponentAssemblyLoader : IAssemblyLoader
+    internal class ComponentAssemblyLoader : IAssemblyLoader
     {
         private readonly PluginLoader inner;
 

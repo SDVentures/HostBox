@@ -4,11 +4,10 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.0-core24</Version>
-    <PackageReleaseNotes>Updated McMaster.NETCore.Plugins dependency to version 0.2.4
-Changed environment variable name that define the name of the required configuration from 'instance' to 'configuration'.</PackageReleaseNotes>
+    <Version>2.0.1-core3</Version>
+    <PackageReleaseNotes>Added shared path probing in dependency location procedure</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>
@@ -24,7 +23,6 @@ Changed environment variable name that define the name of the required configura
   <ItemGroup>
     <PackageReference Include="Common.Logging" Version="3.4.1" />
     <PackageReference Include="HostBox.Borderline" Version="2.0.0-core4" />
-    <PackageReference Include="McMaster.NETCore.Plugins" Version="0.2.4" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
