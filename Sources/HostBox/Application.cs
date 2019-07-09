@@ -150,7 +150,7 @@ namespace HostBox
                         typeof(Borderline.IConfiguration),
                         typeof(DependencyContext)
                     },
-                Path.Combine("shared", "libraries"));
+                Path.Combine("..", "shared", "libraries"));
 
             var entryAssemblyName = loader.LoadDefaultAssembly().GetName(false);
 
