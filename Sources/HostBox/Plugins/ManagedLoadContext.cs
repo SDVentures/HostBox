@@ -7,6 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+
+using Common.Logging;
+
 using McMaster.NETCore.Plugins.LibraryModel;
 
 namespace McMaster.NETCore.Plugins.Loader
@@ -17,6 +20,8 @@ namespace McMaster.NETCore.Plugins.Loader
     /// </summary>
     internal class ManagedLoadContext : AssemblyLoadContext
     {
+        private static readonly ILog Logger = LogManager.GetLogger<ManagedLoadContext>();
+
         private readonly string _basePath;
         private readonly string _sharedBasePath;
 
@@ -200,6 +205,11 @@ namespace McMaster.NETCore.Plugins.Loader
                 var localFile = Path.Combine(basePath, library.AppLocalPath);
                 if (File.Exists(localFile))
                 {
+                    if (basePath == this._sharedBasePath)
+                    {
+                        Logger.Trace(m => m("Будет загружен библиотека из файла [{0}].", localFile));
+                    }
+
                     path = localFile;
                     return true;
                 }

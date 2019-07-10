@@ -6,8 +6,8 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.1-core5</Version>
-    <PackageReleaseNotes>Changed shared libraries path</PackageReleaseNotes>
+    <Version>2.0.1-core6</Version>
+    <PackageReleaseNotes>Added logging</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>
