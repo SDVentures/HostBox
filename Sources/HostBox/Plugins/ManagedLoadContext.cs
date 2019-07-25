@@ -12,6 +12,8 @@ using Common.Logging;
 
 using McMaster.NETCore.Plugins.LibraryModel;
 
+using Microsoft.Extensions.DependencyModel;
+
 namespace McMaster.NETCore.Plugins.Loader
 {
     /// <summary>
@@ -60,6 +62,15 @@ namespace McMaster.NETCore.Plugins.Loader
             _resourceRoots = new[] { _basePath }
                 .Concat(resourceProbingPaths)
                 .ToArray();
+
+            Default.Resolving += ManagedLoadContext_Resolving;
+        }
+
+        private Assembly ManagedLoadContext_Resolving(AssemblyLoadContext loadContext, AssemblyName assemblyName)
+        {
+            this.SearchForLibrary(ManagedLibrary.CreateFromPackage(assemblyName.Name, assemblyName.Version.ToString(), assemblyName.Name + ".dll"), out var path);
+
+            return this.LoadFromAssemblyPath(path);
         }
 
         /// <summary>

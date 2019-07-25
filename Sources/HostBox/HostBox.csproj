@@ -6,8 +6,8 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.1-core7</Version>
-    <PackageReleaseNotes>Changed logger settings - no more file logging</PackageReleaseNotes>
+    <Version>2.0.1-core8</Version>
+    <PackageReleaseNotes>Fixed problem with loading new dependencies of shared library</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>
