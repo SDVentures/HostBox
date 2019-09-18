@@ -10,7 +10,7 @@ namespace HostBox.Configuration
     {
         private readonly IConfigurationSection innerSection;
 
-        public ComponentConfigurationSection(IConfigurationSection innerSection)
+        internal ComponentConfigurationSection(IConfigurationSection innerSection)
         {
             this.innerSection = innerSection;
         }
@@ -39,6 +39,12 @@ namespace HostBox.Configuration
             return this.innerSection
                 .GetChildren()
                 .Select(s => new ComponentConfigurationSection(s));
+        }
+
+        /// <inheritdoc />
+        public Borderline.IConfiguration GetSection(string path)
+        {
+            return new ComponentConfigurationSection(this.innerSection.GetSection(path));
         }
 
         /// <inheritdoc />

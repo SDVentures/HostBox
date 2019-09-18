@@ -6,8 +6,8 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.1-core8</Version>
-    <PackageReleaseNotes>Fixed problem with loading new dependencies of shared library</PackageReleaseNotes>
+    <Version>2.0.1-core9</Version>
+    <PackageReleaseNotes>Extends IConfiguration interface by GetSection method.</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>
@@ -22,7 +22,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Common.Logging" Version="3.4.1" />
-    <PackageReference Include="HostBox.Borderline" Version="2.0.0-core4" />
+    <PackageReference Include="HostBox.Borderline" Version="2.0.0-core6" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />

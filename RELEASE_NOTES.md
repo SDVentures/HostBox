@@ -1,4 +1,7 @@
-﻿## 2.0.1-core0
+﻿## 2.0.1-core9
+  Extends IConfiguration interface by GetSection method.
+
+## 2.0.1-core0
   Added ability to load libraries from different directory to organise shared library storage
   
 ## 2.0.0-core12
