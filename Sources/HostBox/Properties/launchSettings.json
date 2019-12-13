@@ -2,7 +2,7 @@
   "profiles": {
     "Local": {
       "commandName": "Project",
-      "commandLineArgs": "--path c:\\Work\\Projects-git\\dialogs\\dialogs.messages\\dialogs.messages.repository\\trunk\\Sources\\Dialogs.Messages.Repository.Instance\\bin\\Debug\\netcoreapp2.1\\win7-x64\\Dialogs.Messages.Repository.Instance.dll",
+      "commandLineArgs": "--path c:\\Work\\Projects-git\\dialogs\\dialogs.winks\\dialogs.winks.presence.pipe\\trunk\\Sources\\Dialogs.Winks.Presence.Pipe.Instance\\bin\\Debug\\netcoreapp2.2\\win7-x64\\Dialogs.Winks.Presence.Pipe.Instance.dll",
       "environmentVariables": {
         "INSTANCE": "Development"
       }

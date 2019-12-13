@@ -1,4 +1,7 @@
-﻿## 2.0.1-core9
+﻿## 2.0.2-core0
+  Added shared library configuration load.
+
+## 2.0.1-core9
   Extends IConfiguration interface by GetSection method.
 
 ## 2.0.1-core0

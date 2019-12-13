@@ -6,8 +6,8 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.1-core9</Version>
-    <PackageReleaseNotes>Extends IConfiguration interface by GetSection method.</PackageReleaseNotes>
+    <Version>2.0.2-core0</Version>
+    <PackageReleaseNotes>Added shared library configuration load.</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>

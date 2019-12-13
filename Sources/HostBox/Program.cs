@@ -21,7 +21,7 @@ namespace HostBox
         private const string ConfigurationNameEnvVariable = "configuration";
 
         private static ILog Logger { get; set; }
-        
+
         private static async Task Main(string[] args = null)
         {
             var commandLineArgs = GetCommandLineArgs(args);
@@ -30,9 +30,9 @@ namespace HostBox
             {
                 return;
             }
-            
+
             var componentPath = Path.GetFullPath(commandLineArgs.Path, Directory.GetCurrentDirectory());
-            
+
             var builder = new HostBuilder()
                 .ConfigureHostConfiguration(
                     config =>
@@ -61,6 +61,8 @@ namespace HostBox
                             var configName = ctx.Configuration[ConfigurationNameEnvVariable];
 
                             Logger.Info(m => m("Application was launched with configuration '{0}'.", configName));
+
+                            config.LoadSharedLibraryConfigurationFiles(Logger, componentBasePath);
 
                             var configProvider = new ConfigFileNamesProvider(configName, componentBasePath);
 
