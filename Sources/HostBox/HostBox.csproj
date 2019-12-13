@@ -6,8 +6,8 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.2-core0</Version>
-    <PackageReleaseNotes>Added shared library configuration load.</PackageReleaseNotes>
+    <Version>2.0.2-core1</Version>
+    <PackageReleaseNotes>Added method call to set configuration for shared library.</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>

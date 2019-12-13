@@ -1,4 +1,7 @@
-﻿## 2.0.2-core0
+﻿## 2.0.2-core1
+  Added method call to set configuration for shared library.
+  
+## 2.0.2-core0
   Added shared library configuration load.
 
 ## 2.0.1-core9

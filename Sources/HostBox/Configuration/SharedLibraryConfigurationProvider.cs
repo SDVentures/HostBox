@@ -11,7 +11,7 @@ namespace HostBox.Configuration
         public SharedLibraryConfigurationProvider(SharedLibraryConfigurationSource source, string libraryName)
             : base(source)
         {
-            this.libraryName = libraryName;
+            this.libraryName = libraryName.ToLower();
         }
 
         public override void Load()

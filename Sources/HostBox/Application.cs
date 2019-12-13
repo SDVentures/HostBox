@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -184,6 +185,8 @@ namespace HostBox
             }
 
             var cfg = ComponentConfiguration.Create(this.appConfiguration);
+            
+            this.SetSharedLibrariesConfiguration(componentAssemblies, cfg);
 
             var componentLoader = new ComponentAssemblyLoader(loader);
 
@@ -208,6 +211,40 @@ namespace HostBox
                 Components = components,
                 StartTask = startTask
             };
+        }
+
+        private void SetSharedLibrariesConfiguration(Assembly[] assemblies, Borderline.IConfiguration configuration)
+        {
+            foreach (var componentAssembly in assemblies)
+            {
+                var configurationFactory = componentAssembly.GetExportedTypes()
+                    .FirstOrDefault(x => x.Name == "ConfigurationProvider");
+
+                if (configurationFactory != null)
+                {
+                    var method = configurationFactory.GetMethod("Set");
+
+                    if (method != null && method.IsStatic)
+                    {
+                        var parameters = method.GetParameters();
+
+                        if (parameters.Length == 1
+                            && parameters[0].ParameterType == typeof(Borderline.IConfiguration))
+                        {
+                            var libraryName = componentAssembly.GetName().Name.ToLower();
+
+                            method.Invoke(
+                                null,
+                                new object[]
+                                    {
+                                        configuration.GetSection($"shared-libraries:{libraryName}")
+                                    });
+
+                            this.logger.Info(m => m($"Set configuration for shared library {libraryName}"));
+                        }
+                    }
+                }
+            }
         }
 
         private class StartResult
