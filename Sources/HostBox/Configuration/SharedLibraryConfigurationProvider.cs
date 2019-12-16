@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Microsoft.Extensions.Configuration.Json;
 
@@ -18,7 +19,7 @@ namespace HostBox.Configuration
         {
             base.Load();
 
-            var result = new Dictionary<string, string>();
+            var result = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
             foreach (var dataKey in this.Data.Keys)
             {

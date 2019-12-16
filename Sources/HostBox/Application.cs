@@ -15,6 +15,7 @@ using HostBox.Loading;
 using McMaster.NETCore.Plugins;
 
 using Microsoft.DotNet.PlatformAbstractions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.Hosting;
 
@@ -185,8 +186,8 @@ namespace HostBox
             }
 
             var cfg = ComponentConfiguration.Create(this.appConfiguration);
-            
-            this.SetSharedLibrariesConfiguration(componentAssemblies, cfg);
+
+            this.SetSharedLibrariesConfiguration(componentAssemblies);
 
             var componentLoader = new ComponentAssemblyLoader(loader);
 
@@ -213,7 +214,7 @@ namespace HostBox
             };
         }
 
-        private void SetSharedLibrariesConfiguration(Assembly[] assemblies, Borderline.IConfiguration configuration)
+        private void SetSharedLibrariesConfiguration(Assembly[] assemblies)
         {
             foreach (var componentAssembly in assemblies)
             {
@@ -228,16 +229,21 @@ namespace HostBox
                     {
                         var parameters = method.GetParameters();
 
-                        if (parameters.Length == 1
-                            && parameters[0].ParameterType == typeof(Borderline.IConfiguration))
+                        if (parameters.Length == 1)
                         {
                             var libraryName = componentAssembly.GetName().Name.ToLower();
-
+                            var configType = parameters[0].ParameterType;
+                            
+                            var sharedLibConfiguration =
+                                this.appConfiguration
+                                .GetSection($"shared-libraries:{libraryName}")?
+                                .Get(configType);
+                            
                             method.Invoke(
                                 null,
                                 new object[]
                                     {
-                                        configuration.GetSection($"shared-libraries:{libraryName}")
+                                        sharedLibConfiguration
                                     });
 
                             this.logger.Info(m => m($"Set configuration for shared library {libraryName}"));
