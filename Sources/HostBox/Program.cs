@@ -147,7 +147,7 @@ namespace HostBox
                 "Pattern of placeholders to find and replace into the component configuration (default is '!{*}')",
                 CommandOptionType.SingleValue);
 
-            var defaultSharedPath = Path.Combine("..", "shared", "libraries");
+            var defaultSharedPath =  Environment.GetEnvironmentVariable("SHARED_STORE_PATH") ?? Path.Combine("..", "shared", "libraries");
             var sharedOpt = cmdLnApp.Option(
                 "--shared-store-path",
                 $"Directory path where additional dll dependencies located (resolved under component directory, default is '{defaultSharedPath}')",
