@@ -95,6 +95,7 @@ namespace HostBox
                                 .AddSingleton(provider => new ComponentConfig
                                 {
                                     Path = componentPath,
+                                    SharedLibraryPath = commandLineArgs.SharedLibrariesPath,
                                     LoggerFactory = LogManager.GetLogger
                                 });
 
