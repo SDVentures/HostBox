@@ -9,11 +9,14 @@ namespace HostBox.Configuration
 {
     public static class SharedLibraryConfigurationExtensions
     {
-        public static void LoadSharedLibraryConfigurationFiles(this IConfigurationBuilder builder, ILog logger, string componentBasePath)
+        public static void LoadSharedLibraryConfigurationFiles(this IConfigurationBuilder builder, ILog logger, string componentBasePath, string sharedLibraryPath)
         {
-            var sharedLibrariesPath = Path.Combine(componentBasePath, "..", "shared", "libraries");
+            var sharedLibrariesPath = Path.Combine(componentBasePath, sharedLibraryPath);
+            
+            bool directoryExists = Directory.Exists(sharedLibrariesPath); //var e = new DirectoryInfo(sharedLibrariesPath).Exists;
+            logger.Info(m => m($"Is shared library directory exists? -- {directoryExists}"));
 
-            if (Directory.Exists(sharedLibrariesPath))
+            if (directoryExists)
             {
                 var files = Directory.GetFiles(sharedLibrariesPath, "*.settings.json");
 
