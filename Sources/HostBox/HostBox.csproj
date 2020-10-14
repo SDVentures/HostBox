@@ -6,12 +6,12 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.1.0-core0</Version>
-    <PackageReleaseNotes>Changed binding for shared library configuration (breaking change)</PackageReleaseNotes>
+    <Version>2.1.1-core1</Version>
+    <PackageReleaseNotes>Fixed ability to specify the location of shared libraries</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>
-    <Copyright>Copyright @ Social Discovery Ventures 2019</Copyright>
+    <Copyright>Copyright @ Social Discovery Ventures 2020</Copyright>
     <Description>The host of plugin applications can be executed as a console application or as a windows service.</Description>
     <PackageTags>host plugin service</PackageTags>
     <PackageOutputPath>../../package</PackageOutputPath>
