@@ -62,7 +62,7 @@ namespace HostBox
 
                             Logger.Info(m => m("Application was launched with configuration '{0}'.", configName));
 
-                            config.LoadSharedLibraryConfigurationFiles(Logger, componentBasePath);
+                            config.LoadSharedLibraryConfigurationFiles(Logger, componentBasePath, commandLineArgs.SharedLibrariesPath);
 
                             var configProvider = new ConfigFileNamesProvider(configName, componentBasePath);
 
@@ -95,6 +95,7 @@ namespace HostBox
                                 .AddSingleton(provider => new ComponentConfig
                                 {
                                     Path = componentPath,
+                                    SharedLibraryPath = commandLineArgs.SharedLibrariesPath,
                                     LoggerFactory = LogManager.GetLogger
                                 });
 
@@ -147,9 +148,10 @@ namespace HostBox
                 "Pattern of placeholders to find and replace into the component configuration (default is '!{*}')",
                 CommandOptionType.SingleValue);
 
+            var defaultSharedPath =  Environment.GetEnvironmentVariable("SHARED_LIBRARIES_PATH") ?? Path.Combine("..", "shared", "libraries");
             var sharedOpt = cmdLnApp.Option(
-                "--shared-store-path",
-                "Directory path where additional dll dependencies located (resolved under component directory, default is 'shared')",
+                "--shared-libraries-path",
+                $"Directory path where additional dll dependencies located (resolved under component directory, default is '{defaultSharedPath}')",
                 CommandOptionType.SingleValue);
 
             cmdLnApp.VersionOption("-v|--version", cmdLnApp.ShortVersionGetter, cmdLnApp.LongVersionGetter);
@@ -171,7 +173,7 @@ namespace HostBox
 
                         if (!sharedOpt.HasValue())
                         {
-                            sharedOpt.Values.Add("shared");
+                            sharedOpt.Values.Add(defaultSharedPath);
                         }
 
                         return 0;
