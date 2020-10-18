@@ -24,115 +24,146 @@ namespace HostBox
 
         private static async Task Main(string[] args = null)
         {
-            var commandLineArgs = GetCommandLineArgs(args);
-
-            if (commandLineArgs.CommandLineArgsValid)
+            CommandLineArgs commandLineArgs = null;
+            try
             {
-
+                commandLineArgs = GetCommandLineArgs(args);
+                
                 if (commandLineArgs.StartConfirmationRequired)
                 {
                     Console.WriteLine("Press enter to start");
                     Console.ReadLine();
                 }
 
-                var componentPath = Path.GetFullPath(commandLineArgs.Path, Directory.GetCurrentDirectory());
-
-                var builder = new HostBuilder()
-                    .ConfigureHostConfiguration(
-                        config =>
-                        {
-                            config.AddEnvironmentVariables();
-
-                            config.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
-
-                            config.AddJsonFile("hostsettings.json", true, false);
-
-                            ConfigureLogging(config.Build());
-
-                            Logger = LogManager.GetLogger<Program>();
-
-                            Logger.Trace(m => m("Starting hostbox."));
-                        })
-                    .ConfigureAppConfiguration(
-                        (ctx, config) =>
-                        {
-                            Logger.Trace(m => m("Loading hostable component using path [{0}].", componentPath));
-
-                            var componentBasePath = Path.GetDirectoryName(componentPath);
-
-                            config.SetBasePath(componentBasePath);
-
-                            var configName = ctx.Configuration[ConfigurationNameEnvVariable];
-
-                            Logger.Info(m => m("Application was launched with configuration '{0}'.", configName));
-
-                            config.LoadSharedLibraryConfigurationFiles(Logger, componentBasePath, commandLineArgs.SharedLibrariesPath);
-
-                            var configProvider = new ConfigFileNamesProvider(configName, componentBasePath);
-
-                            var templateValuesSource =
-                                new JsonConfigurationSource
-                                {
-                                    Path = configProvider.GetTemplateValuesFile(),
-                                    FileProvider = null,
-                                    ReloadOnChange = false,
-                                    Optional = true
-                                };
-
-                            templateValuesSource.ResolveFileProvider();
-
-                            var templateValuesProvider = templateValuesSource.Build(config);
-
-                            templateValuesProvider.Load();
-
-                            foreach (var configFile in configProvider.EnumerateConfigFiles())
-                            {
-                                config.AddJsonTemplateFile(configFile, false, false, templateValuesProvider, commandLineArgs.PlaceholderPattern);
-
-                                Logger.Trace(m => m("Configuration file [{0}] is loaded.", configFile));
-                            }
-                        })
-                    .ConfigureServices(
-                        (ctx, services) =>
-                        {
-                            services
-                                .AddSingleton(provider => new ComponentConfig
-                                {
-                                    Path = componentPath,
-                                    SharedLibraryPath = commandLineArgs.SharedLibrariesPath,
-                                    LoggerFactory = LogManager.GetLogger
-                                });
-
-                            services.AddSingleton<IHostedService, Application>();
-                        });
-
-                using (var host = builder.Build())
+                if (commandLineArgs.CommandLineArgsValid)
                 {
+                    IHostBuilder builder = PrepareHostBuilder(commandLineArgs);
+                    await RunHost(builder);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (Logger != null)
+                {
+                    Logger.Fatal("Hosting failed.", ex);
+                }
+                else
+                {
+                    Console.WriteLine($"Error: {ex}");
+                }
+                
+                throw;
+            }
+            finally
+            {
+                if (commandLineArgs?.FinishConfirmationRequired ?? false)
+                {
+                    Console.WriteLine("Press enter to finish");
+                    Console.ReadLine();
+                }
+            }
+        }
+
+        private static async Task RunHost(IHostBuilder builder)
+        {
+            using (IHost host = builder.Build())
+            {
+                try
+                {
+                    await host.StartAsync();
+
                     try
                     {
-                        await host.StartAsync();
-
-                        try
-                        {
-                            await host.WaitForShutdownAsync();
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Fatal("Unable to stop host graceful due exception.", e);
-                        }
+                        await host.WaitForShutdownAsync();
                     }
                     catch (Exception e)
                     {
-                        Logger.Fatal("Unable to start host due exception.", e);
+                        Logger.Fatal("Unable to stop host graceful due exception.", e);
                     }
                 }
+                catch (Exception e)
+                {
+                    Logger.Fatal("Unable to start host due exception.", e);
+                }
             }
+        }
 
-            if (commandLineArgs.FinishConfirmationRequired)
-            {
-                Console.WriteLine("Press enter to finish");
-                Console.ReadLine();
-            }
+        private static IHostBuilder PrepareHostBuilder(CommandLineArgs args)
+        {
+            var componentPath = Path.GetFullPath(args.Path, Directory.GetCurrentDirectory());
+
+            var builder = new HostBuilder()
+                .ConfigureHostConfiguration(
+                    config =>
+                    {
+                        config.AddEnvironmentVariables();
+
+                        config.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
+
+                        config.AddJsonFile("hostsettings.json", true, false);
+
+                        ConfigureLogging(config.Build());
+
+                        Logger = LogManager.GetLogger<Program>();
+
+                        Logger.Trace(m => m("Starting hostbox."));
+                    })
+                .ConfigureAppConfiguration(
+                    (ctx, config) =>
+                    {
+                        Logger.Trace(m => m("Loading hostable component using path [{0}].", componentPath));
+
+                        var componentBasePath = Path.GetDirectoryName(componentPath);
+
+                        config.SetBasePath(componentBasePath);
+
+                        var configName = ctx.Configuration[ConfigurationNameEnvVariable];
+
+                        Logger.Info(m => m("Application was launched with configuration '{0}'.", configName));
+
+                        config.LoadSharedLibraryConfigurationFiles(Logger, componentBasePath,
+                            args.SharedLibrariesPath);
+
+                        var configProvider = new ConfigFileNamesProvider(configName, componentBasePath);
+
+                        var templateValuesSource =
+                            new JsonConfigurationSource
+                            {
+                                Path = configProvider.GetTemplateValuesFile(),
+                                FileProvider = null,
+                                ReloadOnChange = false,
+                                Optional = true
+                            };
+
+                        templateValuesSource.ResolveFileProvider();
+
+                        var templateValuesProvider = templateValuesSource.Build(config);
+
+                        templateValuesProvider.Load();
+
+                        foreach (var configFile in configProvider.EnumerateConfigFiles())
+                        {
+                            config.AddJsonTemplateFile(configFile, false, false, templateValuesProvider,
+                                args.PlaceholderPattern);
+
+                            Logger.Trace(m => m("Configuration file [{0}] is loaded.", configFile));
+                        }
+                    })
+                .ConfigureServices(
+                    (ctx, services) =>
+                    {
+                        services
+                            .AddSingleton(provider => new ComponentConfig
+                            {
+                                Path = componentPath,
+                                SharedLibraryPath = args.SharedLibrariesPath,
+                                LoggerFactory = LogManager.GetLogger
+                            });
+
+                        services.AddSingleton<IHostedService, Application>();
+                    });
+
+            return builder;
         }
 
         private static CommandLineArgs GetCommandLineArgs(string[] source)
