@@ -26,16 +26,20 @@ namespace HostBox
         {
             var commandLineArgs = GetCommandLineArgs(args);
 
-            if (commandLineArgs == null)
+            if (commandLineArgs.CommandLineArgsValid)
             {
-                return;
-            }
 
-            var componentPath = Path.GetFullPath(commandLineArgs.Path, Directory.GetCurrentDirectory());
+                if (commandLineArgs.StartConfirmationRequired)
+                {
+                    Console.WriteLine("Press enter to start");
+                    Console.ReadLine();
+                }
 
-            var builder = new HostBuilder()
-                .ConfigureHostConfiguration(
-                    config =>
+                var componentPath = Path.GetFullPath(commandLineArgs.Path, Directory.GetCurrentDirectory());
+
+                var builder = new HostBuilder()
+                    .ConfigureHostConfiguration(
+                        config =>
                         {
                             config.AddEnvironmentVariables();
 
@@ -49,8 +53,8 @@ namespace HostBox
 
                             Logger.Trace(m => m("Starting hostbox."));
                         })
-                .ConfigureAppConfiguration(
-                    (ctx, config) =>
+                    .ConfigureAppConfiguration(
+                        (ctx, config) =>
                         {
                             Logger.Trace(m => m("Loading hostable component using path [{0}].", componentPath));
 
@@ -88,8 +92,8 @@ namespace HostBox
                                 Logger.Trace(m => m("Configuration file [{0}] is loaded.", configFile));
                             }
                         })
-                .ConfigureServices(
-                    (ctx, services) =>
+                    .ConfigureServices(
+                        (ctx, services) =>
                         {
                             services
                                 .AddSingleton(provider => new ComponentConfig
@@ -102,32 +106,38 @@ namespace HostBox
                             services.AddSingleton<IHostedService, Application>();
                         });
 
-            using (var host = builder.Build())
-            {
-                try
+                using (var host = builder.Build())
                 {
-                    await host.StartAsync();
-                }
-                catch (Exception e)
-                {
-                    Logger.Fatal("Unable to start host due exception.", e);
-                    return;
-                }
+                    try
+                    {
+                        await host.StartAsync();
 
-                try
-                {
-                    await host.WaitForShutdownAsync();
+                        try
+                        {
+                            await host.WaitForShutdownAsync();
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Fatal("Unable to stop host graceful due exception.", e);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Fatal("Unable to start host due exception.", e);
+                    }
                 }
-                catch (Exception e)
-                {
-                    Logger.Fatal("Unable to stop host graceful due exception.", e);
-                }
+            }
+
+            if (commandLineArgs.FinishConfirmationRequired)
+            {
+                Console.WriteLine("Press enter to finish");
+                Console.ReadLine();
             }
         }
 
         private static CommandLineArgs GetCommandLineArgs(string[] source)
         {
-            var cmdLnApp = new CommandLineApplication { Name = "host", FullName = "HostBox" };
+            var cmdLnApp = new CommandLineApplication (false) { Name = "host", FullName = "HostBox" };
 
             cmdLnApp.ShortVersionGetter = cmdLnApp.LongVersionGetter = () =>
                 {
@@ -147,11 +157,21 @@ namespace HostBox
                 "--placeholder-pattern",
                 "Pattern of placeholders to find and replace into the component configuration (default is '!{*}')",
                 CommandOptionType.SingleValue);
+            
+            var confirmStartOpt = cmdLnApp.Option(
+                "-cs|--confirm-start",
+                "Requirement to ask for confirmation before starting the application",
+                CommandOptionType.NoValue);
+            
+            var confirmFinishOpt = cmdLnApp.Option(
+                "-cf|--confirm-finish",
+                "Requirement to ask for confirmation before terminating the application",
+                CommandOptionType.NoValue);
 
             var defaultSharedPath =  Environment.GetEnvironmentVariable("SHARED_LIBRARIES_PATH") ?? Path.Combine("..", "shared", "libraries");
             var sharedOpt = cmdLnApp.Option(
-                "--shared-libraries-path",
-                $"Directory path where additional dll dependencies located (resolved under component directory, default is '{defaultSharedPath}')",
+                "-slp|--shared-libraries-path",
+                $"Directory path where additional dll dependencies located (resolved under component directory, default is '{defaultSharedPath}'. Use the environment variable 'SHARED_LIBRARIES_PATH' to override the default..)",
                 CommandOptionType.SingleValue);
 
             cmdLnApp.VersionOption("-v|--version", cmdLnApp.ShortVersionGetter, cmdLnApp.LongVersionGetter);
@@ -179,19 +199,38 @@ namespace HostBox
                         return 0;
                     });
 
+            CommandLineArgs cmdLnArgs= new CommandLineArgs();
+                
             try
             {
                 cmdLnApp.Execute(source);
+
+                cmdLnArgs.Path = pathOpt.Value();
+                cmdLnArgs.PlaceholderPattern = patternOpt.Value();
+                cmdLnArgs.SharedLibrariesPath = sharedOpt.Value();
+                cmdLnArgs.StartConfirmationRequired = confirmStartOpt.HasValue();
+                cmdLnArgs.FinishConfirmationRequired = confirmFinishOpt.HasValue();
+                
+                if (cmdLnApp.RemainingArguments?.Count > 0)
+                {
+                    Console.WriteLine($"Unparsed args: {string.Join(",", cmdLnApp.RemainingArguments)}");
+                }
+                else
+                {
+                    cmdLnArgs.CommandLineArgsValid = true;
+                }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                cmdLnApp.ShowHelp();
-                return null;
+                Console.WriteLine($"Error:{e}");
             }
 
-            return cmdLnApp.IsShowingInformation
-                       ? null
-                       : new CommandLineArgs { Path = pathOpt.Value(), PlaceholderPattern = patternOpt.Value(), SharedLibrariesPath = sharedOpt.Value() };
+            if (!cmdLnArgs.CommandLineArgsValid)
+            {
+                cmdLnApp.ShowHelp();
+            }
+
+            return cmdLnArgs;
         }
 
         private static void ConfigureLogging(IConfiguration config)
@@ -205,11 +244,17 @@ namespace HostBox
 
         private class CommandLineArgs
         {
+            public bool CommandLineArgsValid;
+            
             public string Path { get; set; }
 
             public string PlaceholderPattern { get; set; }
 
             public string SharedLibrariesPath { get; set; }
+            
+            public bool StartConfirmationRequired { get; set; }
+            
+            public bool FinishConfirmationRequired { get; set; }
         }
     }
 }
