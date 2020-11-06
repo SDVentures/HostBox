@@ -6,7 +6,7 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.2.1-core1</Version>
+    <Version>3.0.0</Version>
     <PackageReleaseNotes>Added args for requirement for confirmation before starting or terminating application</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
@@ -20,6 +20,8 @@
     <ToolCommandName>host</ToolCommandName>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageVersion>2.2.1-core1</PackageVersion>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.3.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Common.Logging" Version="3.4.1" />
