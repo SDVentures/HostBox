@@ -1,0 +1,13 @@
+﻿{
+    "common": {
+        "logging": {
+            "factoryAdapter": {
+                "type": "HostBox.Logging.NLogLoggerFactoryAdapter, HostBox",
+                "arguments": {
+                    "configType": "FILE",
+                    "configFile": "~/nlog.config"
+                }
+            }
+        }
+    }
+}

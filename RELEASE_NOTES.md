@@ -1,4 +1,26 @@
-﻿## 1.0.3
+﻿## 2.1.0-core0
+  Changed binding for shared library configuration (breaking change)
+
+## 2.0.2-core1
+  Added method call to set configuration for shared library.
+  
+## 2.0.2-core0
+  Added shared library configuration load.
+
+## 2.0.1-core9
+  Extends IConfiguration interface by GetSection method.
+
+## 2.0.1-core0
+  Added ability to load libraries from different directory to organise shared library storage
+  
+## 2.0.0-core12
+  * Make --path command line argument mandatory.
+  * Updated McMaster.NETCore.Plugins dependency to 0.2.2-rtm.41
+
+## 2.0.0-core11
+  Migration to .net core 2.0
+
+## 1.0.3
   Added asynchronous service start in hostbox configuration with service configuration priority.
 
 ## 1.0.2

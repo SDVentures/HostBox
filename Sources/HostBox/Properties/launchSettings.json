@@ -1,0 +1,19 @@
+{
+  "profiles": {
+    "Local": {
+      "commandName": "Project",
+      "commandLineArgs": "--path c:\\Work\\Projects-git\\dialogs\\dialogs.winks\\dialogs.winks.presence.pipe\\trunk\\Sources\\Dialogs.Winks.Presence.Pipe.Instance\\bin\\Debug\\netcoreapp2.2\\win7-x64\\Dialogs.Winks.Presence.Pipe.Instance.dll",
+      "environmentVariables": {
+        "INSTANCE": "Development"
+      }
+    },
+    "Remote": {
+      "commandName": "Executable",
+      "executablePath": "c:\\!work\\!!!Corefying\\Corefied\\git\\Exo.Alipay.Gateway\\tools\\host.exe",
+      "commandLineArgs": "--path c:\\!work\\!!!Corefying\\Corefied\\git\\Exo.Alipay.Gateway\\Sources\\Exo.Alipay.Gateway.Instance\\bin\\Debug\\netcoreapp2.1\\Exo.Alipay.Gateway.Instance.dll",
+      "environmentVariables": {
+        "environment": "Development"
+      }
+    }
+  }
+}

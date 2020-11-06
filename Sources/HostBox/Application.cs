@@ -1,127 +1,263 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Common.Logging;
 
+using HostBox.Borderline;
+using HostBox.Configuration;
+using HostBox.Loading;
+
+using McMaster.NETCore.Plugins;
+
+using Microsoft.DotNet.PlatformAbstractions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyModel;
+using Microsoft.Extensions.Hosting;
+
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
+
 namespace HostBox
 {
-    internal class Application
+    public class Application : IHostedService
     {
-        private static readonly ILog Logger = LogManager.GetLogger<Application>();
+        private static readonly TaskCompletionSource<object> DelayStart = new TaskCompletionSource<object>();
 
-        private readonly IEnumerable<string> componentPaths;
+        private static readonly TaskCompletionSource<object> DelayStop = new TaskCompletionSource<object>();
 
-        private readonly IApplicationConfigurationFactory applicationConfigurationFactory;
+        private readonly ILog logger;
 
-        private IApplicationConfiguration configuration;
+        private readonly IConfiguration appConfiguration;
 
-        public Application(IEnumerable<string> componentPaths, IApplicationConfigurationFactory applicationConfigurationFactory)
+        private StartResult description;
+
+        public Application(IConfiguration appConfiguration, ComponentConfig config, IApplicationLifetime lifetime)
         {
-            this.componentPaths = componentPaths;
-            this.applicationConfigurationFactory = applicationConfigurationFactory;
+            if (lifetime == null)
+            {
+                throw new ArgumentNullException(nameof(lifetime));
+            }
+
+            this.appConfiguration = appConfiguration ?? throw new ArgumentNullException(nameof(appConfiguration));
+
+            this.ComponentConfig = config;
+
+            this.logger = config.LoggerFactory.Invoke(this.GetType());
+
+            lifetime.ApplicationStarted.Register(this.OnStarted);
+            lifetime.ApplicationStopping.Register(this.OnStopping);
+            lifetime.ApplicationStopped.Register(this.OnStopped);
         }
 
-        public bool Start()
+        public ComponentConfig ComponentConfig { get; }
+
+        /// <inheritdoc />
+        public Task StartAsync(CancellationToken cancellationToken)
         {
-            Logger.Info(m => m("Starting application..."));
-            Logger.Debug(m => m($"Specified directories for loadings components: {string.Join(";", this.componentPaths)}"));
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(this.ComponentConfig.Path));
 
-            try
-            {
-                this.configuration = this.applicationConfigurationFactory.CreateApplicationConfiguration(this.componentPaths);
+            cancellationToken.Register(() => DelayStart.TrySetCanceled());
 
-                this.configuration.ComponentManager.LoadComponents(this.configuration);
-            }
-            catch (ReflectionTypeLoadException exception)
-            {
-                if (exception.LoaderExceptions != null)
-                {
-                    foreach (var loaderException in exception.LoaderExceptions)
+            this.description = this.LoadAndRunComponents(cancellationToken);
+
+            this.description.StartTask
+                .ContinueWith(
+                    t =>
+                        {
+                            DelayStart.TrySetException(t.Exception);
+                            return DelayStart;
+                        },
+                    cancellationToken,
+                    TaskContinuationOptions.OnlyOnFaulted,
+                    TaskScheduler.Default)
+                .ContinueWith(
+                    t =>
+                        {
+                            DelayStart.TrySetResult(null);
+                            return DelayStart;
+                        },
+                    cancellationToken,
+                    TaskContinuationOptions.NotOnFaulted,
+                    TaskScheduler.Default);
+
+            return DelayStart.Task;
+        }
+
+        /// <inheritdoc />
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            cancellationToken.Register(() => DelayStop.TrySetCanceled());
+
+            var componentStopTask = Task.Factory
+                .StartNew(
+                    () =>
+                        {
+                            foreach (var component in this.description.Components)
+                            {
+                                component.Stop();
+                            }
+                        },
+                    cancellationToken,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Default)
+                .ContinueWith(
+                    t =>
+                        {
+                            DelayStop.TrySetException(t.Exception);
+                            return DelayStop;
+                        },
+                    cancellationToken,
+                    TaskContinuationOptions.OnlyOnFaulted,
+                    TaskScheduler.Default)
+                .ContinueWith(
+                    t =>
+                        {
+                            DelayStop.TrySetResult(null);
+                            return DelayStop;
+                        },
+                    cancellationToken,
+                    TaskContinuationOptions.NotOnFaulted,
+                    TaskScheduler.Default);
+
+            componentStopTask.ContinueWith(t => DelayStop.TrySetResult(null), cancellationToken);
+
+            return DelayStop.Task;
+        }
+
+        private void OnStarted()
+        {
+            this.logger.Trace("Application started.");
+        }
+
+        private void OnStopping()
+        {
+            this.logger.Trace("Application stopping.");
+        }
+
+        private void OnStopped()
+        {
+            this.logger.Trace("Application stopped.");
+        }
+
+        private StartResult LoadAndRunComponents(CancellationToken cancellationToken)
+        {
+            var loader = PluginLoader.CreateFromAssemblyFile(
+                this.ComponentConfig.Path,
+                new[]
                     {
-                        var currentException = loaderException;
-                        Logger.Fatal(m => m("Type loading error"), currentException);
-                    }
+                        typeof(Borderline.IConfiguration),
+                        typeof(DependencyContext)
+                    },
+                this.ComponentConfig.SharedLibraryPath);
+
+            var entryAssemblyName = loader.LoadDefaultAssembly().GetName(false);
+
+            var dc = DependencyContext.Load(loader.LoadDefaultAssembly());
+
+            var factories = new List<IHostableComponentFactory>();
+
+            var componentAssemblies = dc.GetRuntimeAssemblyNames(RuntimeEnvironment.GetRuntimeIdentifier())
+                .Where(n => n != entryAssemblyName)
+                .Select(loader.LoadAssembly)
+                .ToArray();
+
+            foreach (var assembly in componentAssemblies)
+            {
+                var componentFactoryTypes = assembly
+                    .GetExportedTypes()
+                    .Where(t => t.GetInterfaces().Any(i => i == typeof(IHostableComponentFactory)))
+                    .ToArray();
+
+                if (!componentFactoryTypes.Any())
+                {
+                    continue;
                 }
 
-                Logger.Fatal(m => m("Error during starting the application"), exception);
-                throw;
-            }
-            catch (Exception exception)
-            {
-                Logger.Fatal(m => m("Error during starting the application"), exception);
-                throw;
+                var instances = componentFactoryTypes
+                    .Select(Activator.CreateInstance)
+                    .Cast<IHostableComponentFactory>()
+                    .ToArray();
+
+                factories.AddRange(instances);
             }
 
-            return true;
+            var cfg = ComponentConfiguration.Create(this.appConfiguration);
+
+            this.SetSharedLibrariesConfiguration(componentAssemblies);
+
+            var componentLoader = new ComponentAssemblyLoader(loader);
+
+            var components = factories
+                .Select(f => f.CreateComponent(componentLoader, cfg))
+                .ToArray();
+
+            var startTask = Task.Factory.StartNew(
+                () =>
+                    {
+                        foreach (var component in components)
+                        {
+                            component.Start();
+                        }
+                    },
+                cancellationToken,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
+
+            return new StartResult
+            {
+                Components = components,
+                StartTask = startTask
+            };
         }
 
-        public bool Stop()
+        private void SetSharedLibrariesConfiguration(Assembly[] assemblies)
         {
-            Logger.Info(m => m("Stopping application..."));
-
-            try
+            foreach (var componentAssembly in assemblies)
             {
-                this.configuration.ComponentManager.UnloadComponents(this.configuration);
-            }
-            catch (Exception exception)
-            {
-                Logger.Fatal(m => m("Error during stopping the application"), exception);
-                throw;
-            }
+                var configurationFactory = componentAssembly.GetExportedTypes()
+                    .FirstOrDefault(x => x.Name == "ConfigurationProvider");
 
-            return true;
+                if (configurationFactory != null)
+                {
+                    var method = configurationFactory.GetMethod("Set");
+
+                    if (method != null && method.IsStatic)
+                    {
+                        var parameters = method.GetParameters();
+
+                        if (parameters.Length == 1)
+                        {
+                            var libraryName = componentAssembly.GetName().Name.ToLower();
+                            var configType = parameters[0].ParameterType;
+                            
+                            var sharedLibConfiguration =
+                                this.appConfiguration
+                                .GetSection($"shared-libraries:{libraryName}")?
+                                .Get(configType);
+                            
+                            method.Invoke(
+                                null,
+                                new object[]
+                                    {
+                                        sharedLibConfiguration
+                                    });
+
+                            this.logger.Info(m => m($"Set configuration for shared library {libraryName}"));
+                        }
+                    }
+                }
+            }
         }
 
-        public bool Resume()
+        private class StartResult
         {
-            Logger.Info(m => m("Resuming application..."));
+            public IHostableComponent[] Components { get; set; }
 
-            try
-            {
-                this.configuration.ComponentManager.ResumeComponents(this.configuration);
-            }
-            catch (Exception exception)
-            {
-                Logger.Fatal(m => m("Error during resuming the application"), exception);
-                throw;
-            }
-
-            return true;
-        }
-
-        public bool Pause()
-        {
-            Logger.Info(m => m("Pausing application..."));
-
-            try
-            {
-                this.configuration.ComponentManager.PauseComponents(this.configuration);
-            }
-            catch (Exception exception)
-            {
-                Logger.Fatal(m => m("Error during pausing the application"), exception);
-                throw;
-            }
-
-            return true;
-        }
-
-        public bool Shutdown()
-        {
-            Logger.Info(m => m("Shutting down application..."));
-
-            try
-            {
-                this.configuration.ComponentManager.UnloadComponents(this.configuration);
-            }
-            catch (Exception exception)
-            {
-                Logger.Fatal(m => m("Error during shutting down the application"), exception);
-                throw;
-            }
-
-            return true;
+            public Task StartTask { get; set; }
         }
     }
 }
