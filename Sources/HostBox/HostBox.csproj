@@ -2,12 +2,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.1.0</Version>
-    <PackageReleaseNotes>Added args for requirement for confirmation before starting or terminating application</PackageReleaseNotes>
+    <Version>3.2.0-pr1</Version>
+    <PackageReleaseNotes>Migrate to .net core 3.1 framework</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>
@@ -19,9 +19,9 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>host</ToolCommandName>
     <IncludeSymbols>true</IncludeSymbols>
-    <PackageVersion>3.1.0</PackageVersion>
-    <AssemblyVersion>3.1.0.0</AssemblyVersion>
-    <FileVersion>3.1.0.0</FileVersion>
+    <PackageVersion>3.2.0-pr1</PackageVersion>
+    <AssemblyVersion>3.2.0.0</AssemblyVersion>
+    <FileVersion>3.2.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Common.Logging" Version="3.4.1" />
