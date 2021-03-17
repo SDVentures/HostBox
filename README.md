@@ -20,4 +20,5 @@ HostBox nuget package can be installed both as a global and local .net cli tool.
 	Options:
 		-p|--path <path>  Path to hostable component.
 		-v|--version      Show version information.
+		-w|--web          Run as a web component.
 		-?|-h|--help      Show help information.
