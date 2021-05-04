@@ -9,7 +9,7 @@ using Common.Logging.Configuration;
 using HostBox.Configuration;
 using HostBox.Loading;
 
-#if NETCOREAPP3_1
+#if !NETCOREAPP2_1
 using Microsoft.AspNetCore.Hosting;
 #endif
 
@@ -105,7 +105,7 @@ namespace HostBox
                                 SharedLibraryPath = commandLineArgs.SharedLibrariesPath
                             }).LoadAndRunComponents(ctx.Configuration, CancellationToken.None);
                         
-#if NETCOREAPP3_1
+#if !NETCOREAPP2_1
                         if (commandLineArgs.Web)
                         {
                             var startup = loadAndRunComponentsResult?.EntryAssembly?.GetExportedTypes().FirstOrDefault(t => typeof(IStartup).IsAssignableFrom(t));
@@ -123,7 +123,7 @@ namespace HostBox
                         services.AddHostedService<ApplicationLifetimeLogger>();
                     });
 
-#if NETCOREAPP3_1
+#if !NETCOREAPP2_1
             if (commandLineArgs.Web)
             {
                 builder
