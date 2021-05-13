@@ -1,11 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 
 namespace HostBox.Configuration
 {
     public class JsonTemplateConfigurationSource : JsonConfigurationSource
     {
-        public IConfigurationProvider ValuesProvider { get; set; }
+        public IEnumerable<IConfigurationProvider> ValuesProviders { get; set; }
 
         public string PlaceholderPattern { get; set; }
 
@@ -16,7 +17,7 @@ namespace HostBox.Configuration
 
             return new JsonTemplateConfigurationProvider(
                 this, 
-                this.ValuesProvider,
+                this.ValuesProviders,
                 this.PlaceholderPattern);
         }
     }

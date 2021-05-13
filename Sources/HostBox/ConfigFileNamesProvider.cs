@@ -24,9 +24,13 @@ namespace HostBox
             this.basePath = basePath;
         }
 
-        public string GetTemplateValuesFile()
+        public IEnumerable<string> GetTemplateValuesFiles()
         {
-            return Path.Combine(this.basePath, SettingsPath, ValuesPath, TemplateValuesFile);
+            var path = Path.Combine(this.basePath, SettingsPath, ValuesPath);
+            foreach (var file in Directory.GetFiles(path, "*.json", SearchOption.TopDirectoryOnly))
+            {
+                yield return file;
+            }
         }
 
         public IEnumerable<string> EnumerateConfigFiles()
