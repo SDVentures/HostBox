@@ -2,24 +2,26 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
+using Common.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
+using NLog.LayoutRenderers;
 
 namespace HostBox.Configuration
 {
     public class JsonTemplateConfigurationProvider : JsonConfigurationProvider
     {
-        private readonly IConfigurationProvider valuesProvider;
+        private readonly List<IConfigurationProvider> valuesProviders;
 
         private readonly string placeholderStart;
         private readonly string placeholderEnd;
+        private static readonly ILog Logger = LogManager.GetLogger<JsonTemplateConfigurationProvider>();
 
         /// <inheritdoc />
-        public JsonTemplateConfigurationProvider(JsonTemplateConfigurationSource source, IConfigurationProvider valuesProvider, string placeholderPattern)
+        public JsonTemplateConfigurationProvider(JsonTemplateConfigurationSource source, IEnumerable<IConfigurationProvider> valuesProviders, string placeholderPattern)
             : base(source)
         {
-            this.valuesProvider = valuesProvider;
+            this.valuesProviders = valuesProviders.ToList();
 
             var parts = placeholderPattern.Split(new[] { '*' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -37,6 +39,7 @@ namespace HostBox.Configuration
             base.Load(stream);
 
             var changes = new Dictionary<string, string>();
+            var defaultValues = new Dictionary<string, string>();
 
             foreach (var pair in this.Data)
             {
@@ -59,9 +62,38 @@ namespace HostBox.Configuration
 
                 foreach (var placeholder in placeholders)
                 {
-                    if (!this.valuesProvider.TryGet(placeholder.Name, out var value))
+                    if (placeholder.DefaultValue != null)
                     {
-                        throw new KeyNotFoundException($"Configuration path [{pair.Key}] contains placeholder [{placeholder}] that not present in values provider.");
+                        if (defaultValues.TryGetValue(placeholder.Name, out var existing))
+                        {
+                            if (existing != placeholder.DefaultValue)
+                            {
+                                throw new Exception($"For placeholder [{placeholder.Name}] different default values were specified. Use same default for one placeholder");
+                            }
+                        }
+                        else
+                        {
+                            defaultValues[placeholder.Name] = placeholder.DefaultValue;
+                        }
+                    }
+
+                    string value = null;
+                    var providersWithValue =
+                        this.valuesProviders.Count(vp => vp.TryGet(placeholder.Name, out value));
+                    if (providersWithValue > 1)
+                    {
+                        throw new Exception($"Placeholder [{placeholder.Name}] exists in multiple values file. Only one file should have the value");
+                    }
+
+                    if (providersWithValue == 0)
+                    {
+                        if (placeholder.DefaultValue == null)
+                        {
+                            throw new KeyNotFoundException($"Configuration path [{pair.Key}] contains placeholder [{placeholder}] that not present in values provider.");
+                        }
+
+                        value = placeholder.DefaultValue;
+                        Logger.Info(m => m($"Placeholder [{placeholder.Name}] default value [{placeholder.DefaultValue}] used"));
                     }
 
                     result = result.Replace(placeholder.ToString(), value);
@@ -93,7 +125,16 @@ namespace HostBox.Configuration
 
                 var name = source.Substring(nameStartIndex, endIndex - nameStartIndex);
 
-                yield return new Placeholder(this.placeholderStart, this.placeholderEnd, name);
+                var defaultValueIdx = name.IndexOf("=", StringComparison.Ordinal);
+
+                string defaultValue = null;
+                if (defaultValueIdx != -1)
+                {
+                    defaultValue = name.Substring(defaultValueIdx + 1);
+                    name = name.Substring(0, defaultValueIdx);
+                }
+
+                yield return new Placeholder(this.placeholderStart, this.placeholderEnd, name, defaultValue);
 
                 startIndex = source.IndexOf(
                     this.placeholderStart,
@@ -104,11 +145,12 @@ namespace HostBox.Configuration
 
         private class Placeholder
         {
-            public Placeholder(string start, string end, string name)
+            public Placeholder(string start, string end, string name, string defaultValue)
             {
                 this.Start = start;
                 this.End = end;
                 this.Name = name;
+                this.DefaultValue = defaultValue;
             }
 
             public string Start { get; }
@@ -117,9 +159,11 @@ namespace HostBox.Configuration
 
             public string Name { get; }
 
+            public string DefaultValue { get; }
+
             public override string ToString()
             {
-                return $"{this.Start}{this.Name}{this.End}";
+                return $"{this.Start}{this.Name}{(DefaultValue == null ? null : "=" + DefaultValue)}{this.End}";
             }
         }
     }

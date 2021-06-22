@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 
 namespace HostBox.Configuration
@@ -14,9 +14,12 @@ namespace HostBox.Configuration
         /// <see cref="IConfigurationBuilder.Properties"/> of <paramref name="builder"/>.</param>
         /// <param name="optional">Whether the file is optional.</param>
         /// <param name="reloadOnChange">Whether the configuration should be reloaded if the file changes.</param>
-        /// <param name="valuesProvider"></param>
+        /// <param name="valuesProviders"></param>
         /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
-        public static IConfigurationBuilder AddJsonTemplateFile(this IConfigurationBuilder builder, string path, bool optional, bool reloadOnChange, IConfigurationProvider valuesProvider, string placeholderPattern = null)
+        public static IConfigurationBuilder AddJsonTemplateFile(this IConfigurationBuilder builder,
+            string path, bool optional, bool reloadOnChange,
+            IEnumerable<IConfigurationProvider> valuesProviders,
+            string placeholderPattern = null)
         {
             if (builder == null)
             {
@@ -33,7 +36,7 @@ namespace HostBox.Configuration
                     s.Path = path;
                     s.Optional = optional;
                     s.ReloadOnChange = reloadOnChange;
-                    s.ValuesProvider = valuesProvider;
+                    s.ValuesProviders = valuesProviders;
                     s.PlaceholderPattern = placeholderPattern ?? "!{*}";
 
                     s.ResolveFileProvider();

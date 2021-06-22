@@ -160,24 +160,16 @@ namespace HostBox
 
             var configProvider = new ConfigFileNamesProvider(configName, componentBasePath);
 
-            var templateValuesSource =
-                new JsonConfigurationSource
-                {
-                    Path = configProvider.GetTemplateValuesFile(),
-                    FileProvider = null,
-                    ReloadOnChange = false,
-                    Optional = true
-                };
-
-            templateValuesSource.ResolveFileProvider();
-
-            var templateValuesProvider = templateValuesSource.Build(config);
-
-            templateValuesProvider.Load();
+            var valuesBuilder = new ConfigurationBuilder();
+            foreach (var valuesFile in configProvider.GetTemplateValuesFiles())
+            {
+                Logger.Trace(m => m($"Loading values file: {valuesFile}"));
+                valuesBuilder.AddJsonFile(valuesFile, optional: true, false);
+            }
 
             foreach (var configFile in configProvider.EnumerateConfigFiles())
             {
-                config.AddJsonTemplateFile(configFile, false, false, templateValuesProvider, args.PlaceholderPattern);
+                config.AddJsonTemplateFile(configFile, false, false, valuesBuilder.Build().Providers, args.PlaceholderPattern);
 
                 Logger.Trace(m => m("Configuration file [{0}] is loaded.", configFile));
             }
