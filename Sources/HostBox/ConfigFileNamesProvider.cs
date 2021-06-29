@@ -27,6 +27,12 @@ namespace HostBox
         public IEnumerable<string> GetTemplateValuesFiles()
         {
             var path = Path.Combine(this.basePath, SettingsPath, ValuesPath);
+
+            if (!Directory.Exists(path))
+            {
+                yield break;
+            }
+            
             foreach (var file in Directory.GetFiles(path, "*.json", SearchOption.TopDirectoryOnly))
             {
                 yield return file;
