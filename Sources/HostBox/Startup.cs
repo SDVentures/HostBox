@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP3_1
+﻿#if !NETCOREAPP2_1
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

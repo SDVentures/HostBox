@@ -40,7 +40,7 @@ namespace HostBox
                 "-cf|--confirm-finish",
                 "Requirement to ask for confirmation before terminating the application",
                 CommandOptionType.NoValue);
-#if NETCOREAPP3_1
+#if !NETCOREAPP2_1
             var webOpt = cmdLnApp.Option(
                 "-w|--web",
                 "Runs HostBox as a web application",
@@ -90,7 +90,7 @@ namespace HostBox
                 cmdLnArgs.StartConfirmationRequired = confirmStartOpt.HasValue();
                 cmdLnArgs.FinishConfirmationRequired = confirmFinishOpt.HasValue();
 
-#if NETCOREAPP3_1
+#if !NETCOREAPP2_1
                 cmdLnArgs.Web = webOpt.HasValue();
 #endif
 

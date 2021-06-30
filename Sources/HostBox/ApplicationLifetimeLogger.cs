@@ -9,7 +9,7 @@ namespace HostBox
     {
         private static readonly ILog Logger = LogManager.GetLogger<ApplicationLifetimeLogger>();
        
-#if NETCOREAPP3_1
+#if !NETCOREAPP2_1
         public ApplicationLifetimeLogger(IHostApplicationLifetime lifetime)
         {
             lifetime.ApplicationStarted.Register(OnStarted);
@@ -17,7 +17,7 @@ namespace HostBox
             lifetime.ApplicationStopped.Register(OnStopped);
         }
 #endif
-#if NETCOREAPP2_2
+#if NETCOREAPP2_1
         public ApplicationLifetimeLogger(IApplicationLifetime lifetime)
         {
             lifetime.ApplicationStarted.Register(OnStarted);
