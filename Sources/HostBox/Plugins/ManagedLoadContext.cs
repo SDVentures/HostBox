@@ -68,7 +68,7 @@ namespace McMaster.NETCore.Plugins.Loader
 
         private Assembly ManagedLoadContext_Resolving(AssemblyLoadContext loadContext, AssemblyName assemblyName)
         {
-            this.SearchForLibrary(ManagedLibrary.CreateFromPackage(assemblyName.Name, assemblyName.Version.ToString(), assemblyName.Name + ".dll"), out var path);
+            this.SearchForLibrary(ManagedLibrary.CreateFromPackage(assemblyName.Name, assemblyName.Version?.ToString(), assemblyName.Name + ".dll"), out var path);
 
             return this.LoadFromAssemblyPath(path);
         }

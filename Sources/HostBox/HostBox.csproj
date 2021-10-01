@@ -6,12 +6,12 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.3.0</Version>
+    <Version>3.3.5</Version>
     <PackageReleaseNotes>Added args for requirement for confirmation before starting or terminating application</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
     <Company>Social Discovery Ventures</Company>
-    <Copyright>Copyright @ Social Discovery Ventures 2020</Copyright>
+    <Copyright>Copyright @ Social Discovery Ventures 2021</Copyright>
     <Description>The host of plugin applications can be executed as a console application or as a windows service.</Description>
     <PackageTags>host plugin service</PackageTags>
     <PackageOutputPath>../../package</PackageOutputPath>
@@ -19,9 +19,9 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>host</ToolCommandName>
     <IncludeSymbols>true</IncludeSymbols>
-    <PackageVersion>3.3.0</PackageVersion>
-    <AssemblyVersion>3.3.0.0</AssemblyVersion>
-    <FileVersion>3.3.0.0</FileVersion>
+    <PackageVersion>3.3.5</PackageVersion>
+    <AssemblyVersion>3.3.5.0</AssemblyVersion>
+    <FileVersion>3.3.5.0</FileVersion>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

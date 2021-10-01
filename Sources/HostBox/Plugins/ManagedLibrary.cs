@@ -58,7 +58,8 @@ namespace McMaster.NETCore.Plugins.LibraryModel
             return new ManagedLibrary
             {
                 Name = new AssemblyName(Path.GetFileNameWithoutExtension(assetPath)),
-                AdditionalProbingPath = Path.Combine(packageId.ToLowerInvariant(), packageVersion, assetPath),
+                AdditionalProbingPath = string.IsNullOrEmpty(packageVersion) ? Path.Combine(packageId.ToLowerInvariant(), assetPath) : 
+                    Path.Combine(packageId.ToLowerInvariant(), packageVersion, assetPath),
                 AppLocalPath = appLocalPath,
             };
         }
