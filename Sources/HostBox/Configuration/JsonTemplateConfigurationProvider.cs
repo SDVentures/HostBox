@@ -78,14 +78,24 @@ namespace HostBox.Configuration
                     }
 
                     string value = null;
-                    var providersWithValue =
-                        this.valuesProviders.Count(vp => vp.TryGet(placeholder.Name, out value));
-                    if (providersWithValue > 1)
+                    var providersWithValueCount = 0;
+                    foreach (var valuesProvider in this.valuesProviders)
                     {
-                        throw new Exception($"Placeholder [{placeholder.Name}] exists in multiple values file. Only one file should have the value");
+                        if (!valuesProvider.TryGet(placeholder.Name, out var currentVal))
+                        {
+                            continue;
+                        }
+
+                        providersWithValueCount++;
+                        if (providersWithValueCount > 1)
+                        {
+                            throw new Exception($"Placeholder [{placeholder.Name}] exists in multiple values file. Only one file should have the value");
+                        }
+
+                        value = currentVal;
                     }
 
-                    if (providersWithValue == 0)
+                    if (providersWithValueCount == 0)
                     {
                         if (placeholder.DefaultValue == null)
                         {
