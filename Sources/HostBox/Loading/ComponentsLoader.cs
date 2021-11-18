@@ -41,11 +41,12 @@ namespace HostBox.Loading
         public LoadAndRunComponentsResult LoadAndRunComponents(IConfiguration configuration, CancellationToken cancellationToken)
         {
             var loadComponentsResult = this.LoadComponents();
-            this.RunComponents(loadComponentsResult.ComponentsFactories, loadComponentsResult.ComponentAssemblies, configuration, cancellationToken);
+            var runComponentsResult = this.RunComponents(loadComponentsResult.ComponentsFactories, loadComponentsResult.ComponentAssemblies, configuration, cancellationToken);
             
             return new LoadAndRunComponentsResult
             {
-                EntryAssembly = loadComponentsResult.EntryAssembly
+                EntryAssembly = loadComponentsResult.EntryAssembly,
+                Components = runComponentsResult.Components
             };
         }
 
@@ -108,7 +109,7 @@ namespace HostBox.Loading
                     {
                         foreach (var component in components)
                         {
-                            component.Start();
+                            component.Start(); // TODO: should pass the cancellationToken
                         }
                     },
                 cancellationToken,
@@ -176,10 +177,12 @@ namespace HostBox.Loading
 
             public Task StartTask { get; set; }
         }
-        
+
         internal class LoadAndRunComponentsResult
         {
             public Assembly EntryAssembly { get; set; }
+
+            public IHostableComponent[] Components { get; set; }
         }
     }
 }
