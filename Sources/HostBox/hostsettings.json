@@ -12,7 +12,7 @@
   },
   "host": {
     "components": {
-      "stoppingTimeoutMinutes": 2
+      "stoppingTimeoutMinutes": 1
     }
   }
 }
