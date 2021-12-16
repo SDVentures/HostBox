@@ -39,7 +39,7 @@ namespace HostBox
             this.lifetime.ApplicationStopping.Register(
                 () =>
                     {
-                        var cts = new CancellationTokenSource(TimeSpan.FromMinutes(this.configuration.StoppingTimeoutMinutes));
+                        var cts = new CancellationTokenSource(this.configuration.StoppingTimeout);
                         var stopTasks = this.hostedComponentsManager.GetComponents()
                             .Select(x => Task.Run(() => x.Stop(), cts.Token));
                         Task.WaitAll(stopTasks.ToArray());

@@ -1,7 +1,9 @@
-﻿namespace HostBox.Configuration
+﻿using System;
+
+namespace HostBox.Configuration
 {
     public class HostComponentsConfiguration
     {
-        public int StoppingTimeoutMinutes { get; set; } = 1;
+        public TimeSpan StoppingTimeout { get; set; } = TimeSpan.FromMinutes(1);
     }
 }

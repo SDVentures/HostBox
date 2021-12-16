@@ -6,11 +6,19 @@ namespace HostBox.Loading
 {
     public class HostedComponentsManager
     {
-        private List<IHostableComponent> components = new List<IHostableComponent>();
+        private readonly List<IHostableComponent> components = new List<IHostableComponent>();
+
+        public HostedComponentsManager(IEnumerable<IHostableComponent> components)
+        {
+            this.AddComponents(components);
+        }
 
         public void AddComponents(IEnumerable<IHostableComponent> components)
         {
-            this.components.AddRange(components);
+            if (components != null)
+            {
+                this.components.AddRange(components);
+            }
         }
 
         public IEnumerable<IHostableComponent> GetComponents() =>

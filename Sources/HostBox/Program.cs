@@ -122,9 +122,7 @@ namespace HostBox
                         services.AddSingleton(ctx.Configuration.GetSection("host:components").Get<HostComponentsConfiguration>()
                                               ?? new HostComponentsConfiguration());
 
-                        var hostedComponentsManager = new HostedComponentsManager();
-                        hostedComponentsManager.AddComponents(loadAndRunComponentsResult?.Components);
-                        services.AddSingleton(hostedComponentsManager);
+                        services.AddSingleton(new HostedComponentsManager(loadAndRunComponentsResult.Components));
 
                         services.AddHostedService<HostableComponentsFinalizer>();
                         services.AddHostedService<ApplicationLifetimeLogger>();
