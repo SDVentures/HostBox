@@ -1,13 +1,18 @@
 ﻿{
-    "common": {
-        "logging": {
-            "factoryAdapter": {
-                "type": "HostBox.Logging.NLogLoggerFactoryAdapter, HostBox",
-                "arguments": {
-                    "configType": "FILE",
-                    "configFile": "~/nlog.config"
-                }
-            }
+  "common": {
+    "logging": {
+      "factoryAdapter": {
+        "type": "HostBox.Logging.NLogLoggerFactoryAdapter, HostBox",
+        "arguments": {
+          "configType": "FILE",
+          "configFile": "~/nlog.config"
         }
+      }
     }
+  },
+  "host": {
+    "components": {
+      "stoppingTimeout": "00:01:00"
+    }
+  }
 }
