@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -15,9 +16,9 @@ namespace HostBox
 
         private const string ConfigFilePattern = "*.settings.json";
 
-        private readonly Regex prioritySettingRegex = new Regex(@"^(?<settingName>\w+)\.(?<priority>\d+)\.settings\.json$");
+        private readonly Regex prioritySettingRegex = new Regex(@"^(?<settingName>[a-zA-Z\.]+)\.(?<priority>\d+)\.settings\.json$");
 
-        private readonly Regex settingNameRegex = new Regex(@"^(?<settingName>\w+)(\.(?<priority>\d+))?\.settings\.json$");
+        private readonly Regex settingNameRegex = new Regex(@"^(?<settingName>[a-zA-Z\.]+)(\.(?<priority>\d+))?\.settings\.json$");
 
         private readonly string configName;
 
@@ -62,6 +63,14 @@ namespace HostBox
             if (configFilesMatches.Any())
             {
                 var overridingResult = new List<string>();
+
+                var duplicateConfigs = configFilesMatches.Select(m => m.Groups["settingName"].Value)
+                                                         .GroupBy(x => x)
+                                                         .Where(g => g.Count() > 1);
+                if (duplicateConfigs.Any())
+                {
+                    throw new Exception($"For configs [{string.Join(", ", duplicateConfigs.Select(g => g.Key))}] found more then one element. Duplicate configs not possible");
+                }
 
                 foreach (var configFileMatch in configFilesMatches)
                 {
