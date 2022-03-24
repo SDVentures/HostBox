@@ -6,7 +6,6 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.4.0</Version>
     <PackageReleaseNotes>Added args for requirement for confirmation before starting or terminating application</PackageReleaseNotes>
     <Product>HostBox</Product>
     <Authors>SDVentures Team</Authors>
@@ -19,9 +18,6 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>host</ToolCommandName>
     <IncludeSymbols>true</IncludeSymbols>
-    <PackageVersion>3.4.0</PackageVersion>
-    <AssemblyVersion>3.4.0.0</AssemblyVersion>
-    <FileVersion>3.4.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp2.1'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
