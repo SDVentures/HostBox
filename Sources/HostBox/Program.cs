@@ -163,7 +163,7 @@ namespace HostBox
 
             config.LoadSharedLibraryConfigurationFiles(Logger, componentBasePath, args.SharedLibrariesPath);
 
-            var configProvider = new ConfigFileNamesProvider(configName, componentBasePath);
+            var configProvider = new ConfigFileNamesProvider(configName, componentBasePath, args.SharedLibrariesPath);
 
             var valuesBuilder = new ConfigurationBuilder();
             foreach (var valuesFile in configProvider.GetTemplateValuesFiles())
