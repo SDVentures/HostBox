@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Common.Logging;
 using Common.Logging.Configuration;
 using HostBox.Configuration;
+using HostBox.Extensions;
 using HostBox.Loading;
 
 #if !NETCOREAPP2_1
@@ -23,6 +24,11 @@ namespace HostBox
     internal class Program
     {
         private const string ConfigurationNameEnvVariable = "configuration";
+
+        private const string ConfigFilterRegexSourceKey = "host:configFilter:fileRegexConfigKey";
+
+        private const string ConfigFilterRegexGroupsSourceKey = "host:configFilter:fileRegexGroupsConfigKey";
+
         private static ILog Logger { get; set; }
 
         private static async Task Main(string[] args = null)
@@ -163,7 +169,10 @@ namespace HostBox
 
             config.LoadSharedLibraryConfigurationFiles(Logger, componentBasePath, args.SharedLibrariesPath);
 
-            var configProvider = new ConfigFileNamesProvider(configName, componentBasePath, args.SharedLibrariesPath);
+            var configFileFilter = currentConfiguration
+                .CopyCombined(config)
+                .GetConfigFileFilter(ConfigFilterRegexSourceKey, ConfigFilterRegexGroupsSourceKey);
+            var configProvider = new ConfigFileNamesProvider(configName, componentBasePath, args.SharedLibrariesPath, configFileFilter);
 
             var valuesBuilder = new ConfigurationBuilder();
             foreach (var valuesFile in configProvider.GetTemplateValuesFiles())

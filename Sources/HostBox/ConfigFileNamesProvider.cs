@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
+using HostBox.Configuration;
+
 namespace HostBox
 {
     public class ConfigFileNamesProvider
@@ -24,12 +26,15 @@ namespace HostBox
 
         private readonly string basePath;
 
+        private readonly IConfigFileFilter configFileFilter;
+
         private readonly string settingOverridingFullPath;
 
-        public ConfigFileNamesProvider(string configName, string basePath, string sharedLibraryPath)
+        public ConfigFileNamesProvider(string configName, string basePath, string sharedLibraryPath, IConfigFileFilter configFileFilter)
         {
             this.configName = configName;
             this.basePath = basePath;
+            this.configFileFilter = configFileFilter;
             this.settingOverridingFullPath = Path.Combine(sharedLibraryPath, SettingsOverridingPath);
         }
 
@@ -129,16 +134,21 @@ namespace HostBox
 
         private IEnumerable<string> EnumerateFiles(string path)
         {
-            var fullPath = Path.Combine(this.basePath, path);
+            return this.configFileFilter.Filter(EnumerateAllFiles());
 
-            if (!Directory.Exists(fullPath))
+            IEnumerable<string> EnumerateAllFiles()
             {
-                yield break;
-            }
+                var fullPath = Path.Combine(this.basePath, path);
 
-            foreach (var file in Directory.GetFiles(fullPath, ConfigFilePattern, SearchOption.TopDirectoryOnly))
-            {
-                yield return file;
+                if (!Directory.Exists(fullPath))
+                {
+                    yield break;
+                }
+
+                foreach (var file in Directory.GetFiles(fullPath, ConfigFilePattern, SearchOption.TopDirectoryOnly))
+                {
+                    yield return file;
+                }
             }
         }
 

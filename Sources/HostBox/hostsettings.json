@@ -13,6 +13,10 @@
   "host": {
     "components": {
       "stoppingTimeout": "00:01:00"
+    },
+    "configFilter": {
+      "fileRegexConfigKey": "shared-libraries:configFilter:fileRegex",
+      "fileRegexGroupsConfigKey": "shared-libraries:configFilter:fileRegexGroups"
     }
   }
 }
