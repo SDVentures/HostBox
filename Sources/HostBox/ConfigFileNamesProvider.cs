@@ -16,9 +16,7 @@ namespace HostBox
 
         private const string ConfigFilePattern = "*.settings.json";
 
-        private readonly Regex prioritySettingRegex = new Regex(@"^(?<settingName>[a-zA-Z\.]+)\.(?<priority>\d+)\.settings\.json$");
-
-        private readonly Regex settingNameRegex = new Regex(@"^(?<settingName>[a-zA-Z\.]+)(\.(?<priority>\d+))?\.settings\.json$");
+        private readonly Regex prioritySettingRegex = new Regex(@"^(\[p(?<priority>\d+)\]\.)?[\w\.]+\.settings\.json$");
 
         private readonly string configName;
 
@@ -50,71 +48,34 @@ namespace HostBox
 
         public IEnumerable<string> EnumerateConfigFiles()
         {
-            IEnumerable<string> result = null;
+            var result = new List<(string filePath, int priority)>();
 
-            var configFiles = this.GetFilesWithPath(SettingsPath);
-            var overridingConfigFiles = this.GetFilesWithPath(this.settingOverridingFullPath);
+            var filesPaths = new[] { (SettingsPath, 0) }
+                             .Concat(this.EnumerateEnvSubfolders().Select(x => (x, 50)))
+                             .Concat(new[] { (this.settingOverridingFullPath, 100) });
 
-            var configFilesMatches = configFiles.Select(x => x.Key)
-                                                .Select(x => this.prioritySettingRegex.Match(x))
-                                                .Where(m => m.Success)
-                                                .ToList();
-
-            if (configFilesMatches.Any())
+            foreach (var (settingsPath, defaultPriority) in filesPaths)
             {
-                var overridingResult = new List<string>();
-
-                var duplicateConfigs = configFilesMatches.Select(m => m.Groups["settingName"].Value)
-                                                         .GroupBy(x => x)
-                                                         .Where(g => g.Count() > 1);
-                if (duplicateConfigs.Any())
+                foreach (var settingFilePath in this.EnumerateFiles(settingsPath))
                 {
-                    throw new Exception($"For configs [{string.Join(", ", duplicateConfigs.Select(g => g.Key))}] found more then one element. Duplicate configs not possible");
-                }
+                    var settingFileName = Path.GetFileName(settingFilePath);
 
-                foreach (var configFileMatch in configFilesMatches)
-                {
-                    var settingName = configFileMatch.Groups["settingName"].Value;
-                    var configPriority = int.Parse(configFileMatch.Groups["priority"].Value);
-                    var configFilePath = configFiles[configFileMatch.Value];
+                    var match = this.prioritySettingRegex.Match(settingFileName);
 
-                    foreach (var (overridingFileName, overridingFilePath) in overridingConfigFiles)
+                    if (!match.Success)
                     {
-                        var match = this.settingNameRegex.Match(overridingFileName);
-
-                        if (!match.Success || settingName != match.Groups["settingName"].Value)
-                        {
-                            continue;
-                        }
-
-                        var matchPriority = match.Groups["priority"];
-                        var overridingConfigPriority = matchPriority.Success ? int.Parse(matchPriority.Value) : 1;
-
-                        if (configPriority > overridingConfigPriority)
-                        {
-                            overridingResult.Add(overridingFilePath);
-                            overridingResult.Add(configFilePath);
-                        }
-                        else
-                        {
-                            overridingResult.Add(configFilePath);
-                            overridingResult.Add(overridingFilePath);
-                        }
-
-                        break;
+                        throw new Exception($"Config file must match regex [{this.prioritySettingRegex}]");
                     }
+
+                    var matchPriority = match.Groups["priority"];
+                    var settingFilePriority = matchPriority.Success ? int.Parse(matchPriority.Value) : defaultPriority;
+
+                    result.Add((settingFilePath, settingFilePriority));
                 }
-
-                result = overridingResult.Union(configFiles.Select(x => x.Value))
-                                         .Union(overridingConfigFiles.Select(x => x.Value))
-                                         .Distinct();
-            }
-            else
-            {
-                result = configFiles.Select(x => x.Value).Union(overridingConfigFiles.Select(x => x.Value));
             }
 
-            return result.Union(this.EnumerateEnvSubfolders().SelectMany(this.EnumerateFiles));
+            return result.OrderBy(x => x.priority)
+                         .Select(x => x.filePath);
         }
 
         private IEnumerable<string> EnumerateEnvSubfolders()
@@ -140,11 +101,6 @@ namespace HostBox
             {
                 yield return file;
             }
-        }
-
-        private Dictionary<string, string> GetFilesWithPath(string path)
-        {
-            return this.EnumerateFiles(path).ToDictionary(Path.GetFileName, p => p);
         }
     }
 }
