@@ -185,7 +185,7 @@ namespace HostBox
                 Logger.Trace(m => m("Configuration file [{0}] is loaded.", configFile));
             }
 
-            var reloadOnChangeSettings = config.Build().GetSection("reload-on-change-settings").Get<IReadOnlyCollection<string>>();
+            var reloadOnChangeSettings = config.Build().GetSection("shared-libraries:gems.app:reload-on-change-settings").Get<IReadOnlyCollection<string>>();
             if (reloadOnChangeSettings != null)
             {
                 foreach (var source in config.Sources.OfType<JsonTemplateConfigurationSource>())
