@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -14,7 +15,6 @@ using Microsoft.AspNetCore.Hosting;
 #endif
 
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -172,11 +172,29 @@ namespace HostBox
                 valuesBuilder.AddJsonFile(valuesFile, optional: true, false);
             }
 
+            var valuesConfigProviders = valuesBuilder.Build().Providers;
             foreach (var configFile in configProvider.EnumerateConfigFiles())
             {
-                config.AddJsonTemplateFile(configFile, false, false, valuesBuilder.Build().Providers, args.PlaceholderPattern);
+                config.AddJsonTemplateFile(
+                    configFile,
+                    optional: false,
+                    reloadOnChange: false,
+                    valuesConfigProviders,
+                    args.PlaceholderPattern);
 
                 Logger.Trace(m => m("Configuration file [{0}] is loaded.", configFile));
+            }
+
+            var reloadOnChangeSettings = config.Build().GetSection("shared-libraries:gems.app:reload-on-change-settings").Get<IReadOnlyCollection<string>>();
+            if (reloadOnChangeSettings != null)
+            {
+                foreach (var source in config.Sources.OfType<JsonTemplateConfigurationSource>())
+                {
+                    if (reloadOnChangeSettings.Contains(source.Path, StringComparer.OrdinalIgnoreCase))
+                    {
+                        source.ReloadOnChange = true;
+                    }
+                }
             }
         }
     }

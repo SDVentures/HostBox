@@ -18,7 +18,11 @@ HostBox nuget package can be installed both as a global and local .net cli tool.
 	host [options]
 
 	Options:
-		-p|--path <path>  Path to hostable component.
-		-v|--version      Show version information.
-		-w|--web          Run as a web component.
-		-?|-h|--help      Show help information.
+		-?|-h|--help                  Show help information.
+		-p|--path <path>              Path to hostable component.
+		-v|--version                  Show version information.
+		-w|--web                      Run as a web component.
+		--placeholder-pattern         Pattern of placeholders to find and replace into the component configuration (default is '!{*}').
+		-cs|--confirm-start           Requirement to ask for confirmation before starting the application.
+		-cf|--confirm-finish          Requirement to ask for confirmation before terminating the application.
+		-slp|--shared-libraries-path  Directory path where additional dll dependencies located.

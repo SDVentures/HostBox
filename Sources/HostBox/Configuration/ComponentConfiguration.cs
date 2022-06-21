@@ -49,9 +49,7 @@ namespace HostBox.Configuration
 
         /// <inheritdoc />
         public void OnReload(Action<Borderline.IConfiguration> callback)
-        {
-            this.inner.GetReloadToken().RegisterChangeCallback(o => callback.Invoke(this), null);
-        }
+            => inner.OnChange(this, callback);
 
         public static Borderline.IConfiguration Create(IConfiguration source)
         {
