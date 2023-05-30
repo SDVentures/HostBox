@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
-
+using System.Xml;
 using Common.Logging;
 using Common.Logging.Configuration;
 using Common.Logging.Factory;
+using NLog.Config;
 
 namespace HostBox.Logging
 {
@@ -49,10 +50,19 @@ namespace HostBox.Logging
                 case "INLINE":
                     break;
                 case "FILE":
-                    global::NLog.LogManager.Configuration = new global::NLog.Config.XmlLoggingConfiguration(configFile);
+                    global::NLog.LogManager.Configuration = GetConfiguration(configFile);
                     break;
                 default:
                     break;
+            }
+        }
+
+        private static XmlLoggingConfiguration GetConfiguration(string configFile)
+        {
+            var fileStream = new FileStream(configFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 1);
+            using (var reader = XmlReader.Create(fileStream))
+            {
+                return new global::NLog.Config.XmlLoggingConfiguration(reader);
             }
         }
 
