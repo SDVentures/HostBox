@@ -43,9 +43,9 @@ namespace HostBox
                     var host = CreateHostBuilder(commandLineArgs)
                         .Build();
 
-                    var runner = host.Services.GetService<ComponentsRunner>();
+                    var manager = host.Services.GetService<HostedComponentsManager>();
 
-                    await runner.RunComponents(CancellationToken.None);
+                    await manager.RunComponents(CancellationToken.None);
 
                     await host.RunAsync();
                 }
@@ -127,7 +127,7 @@ namespace HostBox
                         services.AddSingleton(ctx.Configuration.GetSection("host:components").Get<HostComponentsConfiguration>()
                                               ?? new HostComponentsConfiguration());
 
-                        services.AddSingleton(new ComponentsRunner(loadComponentsResult.Components));
+                        services.AddSingleton(new HostedComponentsManager(loadComponentsResult.Components));
 
                         services.AddHostedService<HostableComponentsFinalizer>();
                         services.AddHostedService<ApplicationLifetimeLogger>();

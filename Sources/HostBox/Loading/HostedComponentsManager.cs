@@ -6,11 +6,11 @@ using HostBox.Borderline;
 
 namespace HostBox.Loading
 {
-    public class ComponentsRunner
+    public class HostedComponentsManager
     {
         private readonly List<IHostableComponent> components = new List<IHostableComponent>();
 
-        public ComponentsRunner(IEnumerable<IHostableComponent> components)
+        public HostedComponentsManager(IEnumerable<IHostableComponent> components)
         {
             this.AddComponents(components);
         }
