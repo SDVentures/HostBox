@@ -40,9 +40,14 @@ namespace HostBox
 
                 if (commandLineArgs.CommandLineArgsValid)
                 {
-                    await CreateHostBuilder(commandLineArgs)
-                        .Build()
-                        .RunAsync();
+                    var host = CreateHostBuilder(commandLineArgs)
+                        .Build();
+
+                    var manager = host.Services.GetService<HostedComponentsManager>();
+
+                    await manager.RunComponents(CancellationToken.None);
+
+                    await host.RunAsync();
                 }
             }
             catch (Exception ex)
@@ -98,17 +103,17 @@ namespace HostBox
                     {
                         Directory.SetCurrentDirectory(Path.GetDirectoryName(componentPath));
 
-                        var loadAndRunComponentsResult = new ComponentsLoader(
+                        var loadComponentsResult = new ComponentsLoader(
                             new ComponentConfig
-                            {
-                                Path = componentPath,
-                                SharedLibraryPath = commandLineArgs.SharedLibrariesPath
-                            }).LoadAndRunComponents(ctx.Configuration, CancellationToken.None);
-                        
+                                {
+                                    Path = componentPath,
+                                    SharedLibraryPath = commandLineArgs.SharedLibrariesPath
+                                }).LoadComponents(ctx.Configuration);
+
 #if !NETCOREAPP2_1
                         if (commandLineArgs.Web)
                         {
-                            var startup = loadAndRunComponentsResult?.EntryAssembly?.GetExportedTypes().FirstOrDefault(t => typeof(IStartup).IsAssignableFrom(t));
+                            var startup = loadComponentsResult?.EntryAssembly?.GetExportedTypes().FirstOrDefault(t => typeof(IStartup).IsAssignableFrom(t));
                             if (startup != null)
                             {
                                 services.AddSingleton(typeof(IStartup), startup);
@@ -122,7 +127,7 @@ namespace HostBox
                         services.AddSingleton(ctx.Configuration.GetSection("host:components").Get<HostComponentsConfiguration>()
                                               ?? new HostComponentsConfiguration());
 
-                        services.AddSingleton(new HostedComponentsManager(loadAndRunComponentsResult.Components));
+                        services.AddSingleton(new HostedComponentsManager(loadComponentsResult.Components));
 
                         services.AddHostedService<HostableComponentsFinalizer>();
                         services.AddHostedService<ApplicationLifetimeLogger>();
