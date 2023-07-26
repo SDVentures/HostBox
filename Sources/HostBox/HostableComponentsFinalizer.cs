@@ -12,7 +12,7 @@ namespace HostBox
 {
     public class HostableComponentsFinalizer : IHostedService
     {
-        private readonly ComponentsRunner componentsRunner;
+        private readonly HostedComponentsManager hostedComponentsManager;
 
         private readonly HostComponentsConfiguration configuration;
 
@@ -24,13 +24,13 @@ namespace HostBox
 #endif
 
 #if NETCOREAPP3_1_OR_GREATER
-        public HostableComponentsFinalizer(IHostApplicationLifetime lifetime, ComponentsRunner componentsRunner, HostComponentsConfiguration configuration)
+        public HostableComponentsFinalizer(IHostApplicationLifetime lifetime, HostedComponentsManager hostedComponentsManager, HostComponentsConfiguration configuration)
 #else
         public HostableComponentsFinalizer(IApplicationLifetime lifetime, HostedComponentsManager hostedComponentsManager, HostComponentsConfiguration configuration)
 #endif
         {
             this.lifetime = lifetime;
-            this.componentsRunner = componentsRunner;
+            this.hostedComponentsManager = hostedComponentsManager;
             this.configuration = configuration;
         }
 
@@ -40,7 +40,7 @@ namespace HostBox
                 () =>
                     {
                         var cts = new CancellationTokenSource(this.configuration.StoppingTimeout);
-                        var stopTasks = this.componentsRunner.GetComponents()
+                        var stopTasks = this.hostedComponentsManager.GetComponents()
                             .Select(x => Task.Run(() => x.Stop(), cts.Token));
                         Task.WaitAll(stopTasks.ToArray());
                     });
