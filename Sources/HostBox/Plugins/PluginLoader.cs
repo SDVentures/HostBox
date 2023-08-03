@@ -86,7 +86,7 @@ namespace McMaster.NETCore.Plugins
         /// <returns>The assembly.</returns>
         public Assembly LoadAssembly(AssemblyName assemblyName)
         {
-            Console.WriteLine($"Load Assembly {assemblyName}");
+            Console.WriteLine($"Load Assembly {assemblyName} {assemblyName.FullName}");
             return _context.LoadFromAssemblyName(assemblyName);
         }
 

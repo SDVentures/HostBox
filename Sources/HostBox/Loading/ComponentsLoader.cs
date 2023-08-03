@@ -44,13 +44,17 @@ namespace HostBox.Loading
             var entryAssemblyName = entryAssembly.GetName(false);
             Console.WriteLine($"Load components: LoadDefaultAssembly [{entryAssemblyName}]");
 
-            // double load?
+            // double load for default assembly?
             var dc = DependencyContext.Load(this.loader.LoadDefaultAssembly());
 
+            Console.WriteLine($"Before load all {DateTime.UtcNow:s}");
             var componentsAssemblies = dc.GetRuntimeAssemblyNames(RuntimeEnvironment.GetRuntimeIdentifier())
                 .Where(n => n != entryAssemblyName)
                 .Select(this.loader.LoadAssembly)
                 .ToArray();
+
+
+            Console.WriteLine($"After load all {DateTime.UtcNow:s}. {componentsAssemblies.Length} assemblies loaded");
 
             this.SetSharedLibrariesConfiguration(configuration, componentsAssemblies);
             var cfg = ComponentConfiguration.Create(configuration);
@@ -79,6 +83,8 @@ namespace HostBox.Loading
                 }
             }
 
+            Console.WriteLine($"Return result {DateTime.UtcNow:s}. {components.Count} components loaded");
+            Console.WriteLine(string.Join(", ", components.Select(x => x.GetType().FullName)));
             return new LoadComponentsResult
             {
                 EntryAssembly = entryAssembly,

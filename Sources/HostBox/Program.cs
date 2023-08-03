@@ -27,7 +27,7 @@ namespace HostBox
 
         private static async Task Main(string[] args = null)
         {
-            Console.WriteLine("Main");
+            Console.WriteLine($"Main {DateTime.UtcNow:s}");
             CommandLineArgs commandLineArgs = null;
             try
             {
@@ -41,13 +41,16 @@ namespace HostBox
 
                 if (commandLineArgs.CommandLineArgsValid)
                 {
+                    Console.WriteLine($"Before CreateHostBuilder {DateTime.UtcNow:s}");
                     var host = CreateHostBuilder(commandLineArgs)
                         .Build();
 
+                    Console.WriteLine($"After Host Build {DateTime.UtcNow:s}");
                     var manager = host.Services.GetService<HostedComponentsManager>();
 
                     await manager.RunComponents(CancellationToken.None);
 
+                    Console.WriteLine($"After Run Components {DateTime.UtcNow:s}");
                     await host.RunAsync();
                 }
             }
