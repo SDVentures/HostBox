@@ -185,7 +185,8 @@ namespace HostBox
                     optional: false,
                     reloadOnChange: false,
                     valuesConfigProviders,
-                    args.PlaceholderPattern);
+                    args.PlaceholderPattern,
+                    args.EnvPlaceholderPattern);
 
                 Logger.Trace(m => m("Configuration file [{0}] is loaded.", configFile));
             }
