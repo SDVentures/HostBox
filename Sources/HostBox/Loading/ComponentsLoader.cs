@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -42,7 +42,9 @@ namespace HostBox.Loading
         {
             var entryAssembly = this.loader.LoadDefaultAssembly();
             var entryAssemblyName = entryAssembly.GetName(false);
+            Console.WriteLine($"Load components: LoadDefaultAssembly [{entryAssemblyName}]");
 
+            // double load?
             var dc = DependencyContext.Load(this.loader.LoadDefaultAssembly());
 
             var componentsAssemblies = dc.GetRuntimeAssemblyNames(RuntimeEnvironment.GetRuntimeIdentifier())

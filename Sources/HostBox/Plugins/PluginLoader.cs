@@ -1,4 +1,4 @@
-﻿// Copyright (c) Nate McMaster.
+// Copyright (c) Nate McMaster.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -44,6 +44,7 @@ namespace McMaster.NETCore.Plugins
         /// <returns>A loader.</returns>
         public static PluginLoader CreateFromAssemblyFile(string assemblyFile, Type[] sharedTypes = null, string sharedPath = null)
         {
+            Console.WriteLine($"PluginLoader: CreateFromAssemblyFile {assemblyFile}");
             var config = new FileOnlyPluginConfig(assemblyFile);
             var baseDir = Path.GetDirectoryName(assemblyFile);
             return new PluginLoader(config, baseDir, sharedTypes, PluginLoaderOptions.None, sharedPath);
@@ -84,7 +85,10 @@ namespace McMaster.NETCore.Plugins
         /// <param name="assemblyName">The assembly name.</param>
         /// <returns>The assembly.</returns>
         public Assembly LoadAssembly(AssemblyName assemblyName)
-            => _context.LoadFromAssemblyName(assemblyName);
+        {
+            Console.WriteLine($"Load Assembly {assemblyName}");
+            return _context.LoadFromAssemblyName(assemblyName);
+        }
 
         /// <summary>
         /// Load an assembly by name.
@@ -101,6 +105,7 @@ namespace McMaster.NETCore.Plugins
                               string sharedPath)
         {
             _mainAssembly = Path.Combine(baseDir, config.MainAssembly.Name + ".dll");
+            Console.WriteLine($"PluginLoader: ctor {_mainAssembly}");
             _context = CreateLoadContext(baseDir, config, sharedTypes, loaderOptions, sharedPath);
         }
 

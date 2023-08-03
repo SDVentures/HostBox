@@ -27,6 +27,7 @@ namespace HostBox
 
         private static async Task Main(string[] args = null)
         {
+            Console.WriteLine("Main");
             CommandLineArgs commandLineArgs = null;
             try
             {
@@ -75,6 +76,7 @@ namespace HostBox
         
         private static IHostBuilder CreateHostBuilder(CommandLineArgs commandLineArgs)
         {
+            Console.WriteLine("Create host builder");
             var componentPath = Path.GetFullPath(commandLineArgs.Path, Directory.GetCurrentDirectory());
             
             var builder = new HostBuilder()
