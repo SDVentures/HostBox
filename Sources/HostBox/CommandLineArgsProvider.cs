@@ -40,6 +40,11 @@ namespace HostBox
                 "-cf|--confirm-finish",
                 "Requirement to ask for confirmation before terminating the application",
                 CommandOptionType.NoValue);
+
+            var envPatternOpt = cmdLnApp.Option(
+                "--env-placeholder-pattern",
+                "Pattern of placeholders to find and replace into the component configuration from environment variables process (default is '!env{*}')",
+                CommandOptionType.SingleValue);
 #if !NETCOREAPP2_1
             var webOpt = cmdLnApp.Option(
                 "-w|--web",
@@ -75,6 +80,11 @@ namespace HostBox
                             sharedOpt.Values.Add(defaultSharedPath);
                         }
 
+                        if (!envPatternOpt.HasValue())
+                        {
+                            envPatternOpt.Values.Add("!env{*}");
+                        }
+
                         return 0;
                     });
 
@@ -89,6 +99,7 @@ namespace HostBox
                 cmdLnArgs.SharedLibrariesPath = sharedOpt.Value();
                 cmdLnArgs.StartConfirmationRequired = confirmStartOpt.HasValue();
                 cmdLnArgs.FinishConfirmationRequired = confirmFinishOpt.HasValue();
+                cmdLnArgs.EnvPlaceholderPattern = envPatternOpt.Value();
 
 #if !NETCOREAPP2_1
                 cmdLnArgs.Web = webOpt.HasValue();

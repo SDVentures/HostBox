@@ -19,7 +19,8 @@ namespace HostBox.Configuration
         public static IConfigurationBuilder AddJsonTemplateFile(this IConfigurationBuilder builder,
             string path, bool optional, bool reloadOnChange,
             IEnumerable<IConfigurationProvider> valuesProviders,
-            string placeholderPattern = null)
+            string placeholderPattern = null,
+            string envPlaceholderPattern = null)
         {
             if (builder == null)
             {
@@ -38,7 +39,7 @@ namespace HostBox.Configuration
                     s.ReloadOnChange = reloadOnChange;
                     s.ValuesProviders = valuesProviders;
                     s.PlaceholderPattern = placeholderPattern ?? "!{*}";
-
+                    s.EnvPlaceholderPattern = envPlaceholderPattern ?? "!env{*}";
                     s.ResolveFileProvider();
                 });
         }

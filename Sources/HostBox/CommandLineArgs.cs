@@ -8,6 +8,8 @@
 
         public string PlaceholderPattern { get; set; }
 
+        public string EnvPlaceholderPattern { get; set; }
+
         public string SharedLibrariesPath { get; set; }
 
         public bool StartConfirmationRequired { get; set; }

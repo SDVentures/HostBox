@@ -10,6 +10,8 @@ namespace HostBox.Configuration
 
         public string PlaceholderPattern { get; set; }
 
+        public string EnvPlaceholderPattern { get; set; }
+
         /// <inheritdoc />
         public override IConfigurationProvider Build(IConfigurationBuilder builder)
         {
@@ -18,7 +20,8 @@ namespace HostBox.Configuration
             return new JsonTemplateConfigurationProvider(
                 this, 
                 this.ValuesProviders,
-                this.PlaceholderPattern);
+                this.PlaceholderPattern,
+                this.EnvPlaceholderPattern);
         }
     }
 }
