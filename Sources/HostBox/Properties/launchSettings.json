@@ -2,9 +2,19 @@
   "profiles": {
     "Local": {
       "commandName": "Project",
-      "commandLineArgs": "--path c:\\Work\\Projects-git\\dialogs\\dialogs.winks\\dialogs.winks.presence.pipe\\trunk\\Sources\\Dialogs.Winks.Presence.Pipe.Instance\\bin\\Debug\\netcoreapp2.2\\win7-x64\\Dialogs.Winks.Presence.Pipe.Instance.dll",
+      "commandLineArgs": "--path D:\\Projects_git\\users.hierarchy.kpi.pipe\\publish\\Users.Hierarchy.Kpi.Pipe.Instance.dll",
       "environmentVariables": {
-        "INSTANCE": "Development"
+        "configuration": "Development",
+        "CP_FACILITY": "0"
+      }
+    },
+    "LocalWeb": {
+      "commandName": "Project",
+      "commandLineArgs": "--path D:\\Projects_git\\l10n.web\\publish\\L10N.Web.Instance.dll --web",
+      "environmentVariables": {
+        "configuration": "Development",
+        "CP_FACILITY": "0",
+        "ASPNETCORE_URLS": "http://+:6000"
       }
     },
     "Remote": {

@@ -45,12 +45,11 @@ namespace HostBox
                 "--env-placeholder-pattern",
                 "Pattern of placeholders to find and replace into the component configuration from environment variables process (default is '!env{*}')",
                 CommandOptionType.SingleValue);
-#if !NETCOREAPP2_1
+                
             var webOpt = cmdLnApp.Option(
                 "-w|--web",
                 "Runs HostBox as a web application",
                 CommandOptionType.NoValue);
-#endif
 
             var defaultSharedPath =  Environment.GetEnvironmentVariable("SHARED_LIBRARIES_PATH") ?? Path.Combine("..", "shared", "libraries");
             var sharedOpt = cmdLnApp.Option(
@@ -101,9 +100,7 @@ namespace HostBox
                 cmdLnArgs.FinishConfirmationRequired = confirmFinishOpt.HasValue();
                 cmdLnArgs.EnvPlaceholderPattern = envPatternOpt.Value();
 
-#if !NETCOREAPP2_1
                 cmdLnArgs.Web = webOpt.HasValue();
-#endif
 
                 if (cmdLnApp.RemainingArguments?.Count > 0)
                 {

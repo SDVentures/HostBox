@@ -16,8 +16,6 @@
 
         public bool FinishConfirmationRequired { get; set; }
 
-#if !NETCOREAPP2_1
         public bool Web { get; set; }
-#endif
     }
 }

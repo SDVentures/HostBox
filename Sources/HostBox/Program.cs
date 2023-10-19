@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,11 +9,8 @@ using Common.Logging;
 using Common.Logging.Configuration;
 using HostBox.Configuration;
 using HostBox.Loading;
-
-#if !NETCOREAPP2_1
+using HostBox.Web;
 using Microsoft.AspNetCore.Hosting;
-#endif
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -110,20 +107,8 @@ namespace HostBox
                                     SharedLibraryPath = commandLineArgs.SharedLibrariesPath
                                 }).LoadComponents(ctx.Configuration);
 
-#if !NETCOREAPP2_1
-                        if (commandLineArgs.Web)
-                        {
-                            var startup = loadComponentsResult?.EntryAssembly?.GetExportedTypes().FirstOrDefault(t => typeof(IStartup).IsAssignableFrom(t));
-                            if (startup != null)
-                            {
-                                services.AddSingleton(typeof(IStartup), startup);
-                            }
-                            else
-                            {
-                                Logger.Error(m => m("Couldn't find a Startup class which is implementing IStartup"));
-                            }
-                        }
-#endif
+                        HostboxWebExtensions.ConfigureWebServices(loadComponentsResult, services, commandLineArgs);
+
                         services.AddSingleton(ctx.Configuration.GetSection("host:components").Get<HostComponentsConfiguration>()
                                               ?? new HostComponentsConfiguration());
 
@@ -133,16 +118,7 @@ namespace HostBox
                         services.AddHostedService<ApplicationLifetimeLogger>();
                     });
 
-#if !NETCOREAPP2_1
-            if (commandLineArgs.Web)
-            {
-                builder
-                    .ConfigureWebHostDefaults(b =>
-                    {
-                        b.UseStartup<Startup>();
-                    });
-            }
-#endif
+            HostboxWebExtensions.ConfigureWebHost(builder, commandLineArgs);
 
             return builder;
         }
