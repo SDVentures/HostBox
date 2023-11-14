@@ -18,6 +18,7 @@ namespace HostBox.Web
         private static ILog Logger { get; set; }
         private static bool HealthCheckEnabled => probesConfig != null;
         private static ProbesConfig probesConfig = null;
+        private static string testappSettingsFile = "";
         internal static void Initialize(string componentPath, string sharedLibrariesPath)
         {
             var initialConfiguration = BuildInitialConfiguration(componentPath, sharedLibrariesPath);
@@ -41,7 +42,9 @@ namespace HostBox.Web
 
             if (probesConfig == null)
             {
-                Logger.Info("No healthcheck configured");
+                Logger.Info($"No healthcheck configured: {testappSettingsFile}. File exists? {File.Exists(testappSettingsFile)}");
+                var dir = Path.GetDirectoryName(testappSettingsFile);
+                Logger.Info($"Dir exists? {Directory.Exists(dir)}. {dir}");
             }
             else
             {
@@ -139,6 +142,7 @@ namespace HostBox.Web
         {
             var appSettingsFile = Path.Combine(componentPath, sharedLibrariesDir, "gems.app.settings.json");
 
+            testappSettingsFile = appSettingsFile;
             var initialConfiguration = new ConfigurationBuilder()
                         .AddJsonFile(appSettingsFile, optional: true)
                         .Build();
