@@ -147,9 +147,4 @@ namespace HostBox.Web
             return initialConfiguration;
         }
     }
-
-    internal class TestExtension
-    {
-        public int MyProperty { get; set; } = 10;
-    }
 }

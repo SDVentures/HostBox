@@ -101,7 +101,6 @@ namespace HostBox
                 .ConfigureServices(
                     (ctx, services) =>
                     {
-                        services.AddSingleton(new TestExtension());
                         Directory.SetCurrentDirectory(Path.GetDirectoryName(componentPath));
 
                         var loadComponentsResult = new ComponentsLoader(
