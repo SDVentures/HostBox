@@ -7,7 +7,7 @@ namespace HostBox.Web
     /// <summary>
     /// A wrapper around IStartup, that calls IStartup from entry assembly 
     /// </summary>
-    public class Startup
+    internal class Startup
     {
         public void ConfigureServices(IServiceCollection services)
         {
@@ -15,6 +15,7 @@ namespace HostBox.Web
             // singleton services being created which might result in incorrect application behavior.
             // Consider alternatives such as dependency injecting services as parameters to 'Configure'.
             var sp = services.BuildServiceProvider();
+            //var test = this.startup;
             var startup = sp.GetService<IStartup>();
 
             startup?.ConfigureServices(services);

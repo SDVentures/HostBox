@@ -73,7 +73,9 @@ namespace HostBox
         private static IHostBuilder CreateHostBuilder(CommandLineArgs commandLineArgs)
         {
             var componentPath = Path.GetFullPath(commandLineArgs.Path, Directory.GetCurrentDirectory());
-            
+
+            HostboxWebExtensions.Initialize(componentPath, commandLineArgs.SharedLibrariesPath);
+
             var builder = new HostBuilder()
                 .ConfigureHostConfiguration(
                     config =>
@@ -85,10 +87,11 @@ namespace HostBox
                         config.AddJsonFile("hostsettings.json", true, false);
 
                         ConfigureLogging(config.Build());
-                        
+
                         Logger = LogManager.GetLogger<Program>();
 
                         Logger.Trace(m => m("Starting hostbox."));
+                        HostboxWebExtensions.ConfigureLogging();
                     })
                 .ConfigureAppConfiguration(
                     (ctx, config) =>
@@ -98,6 +101,7 @@ namespace HostBox
                 .ConfigureServices(
                     (ctx, services) =>
                     {
+                        services.AddSingleton(new TestExtension());
                         Directory.SetCurrentDirectory(Path.GetDirectoryName(componentPath));
 
                         var loadComponentsResult = new ComponentsLoader(

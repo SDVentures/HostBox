@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HostBox.Web
 {
-    public class StartupHealthCheckOnly
+    internal class StartupHealthCheckOnly
     {
         public void ConfigureServices(IServiceCollection services)
         {
