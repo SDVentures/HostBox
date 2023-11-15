@@ -74,7 +74,7 @@ namespace HostBox
         {
             var componentPath = Path.GetFullPath(commandLineArgs.Path, Directory.GetCurrentDirectory());
 
-            HostboxWebExtensions.Initialize(componentPath, commandLineArgs.SharedLibrariesPath);
+            HealthCheckHelper.Initialize(componentPath, commandLineArgs.SharedLibrariesPath);
 
             var builder = new HostBuilder()
                 .ConfigureHostConfiguration(
@@ -91,7 +91,7 @@ namespace HostBox
                         Logger = LogManager.GetLogger<Program>();
 
                         Logger.Trace(m => m("Starting hostbox."));
-                        HostboxWebExtensions.ConfigureLogging();
+                        HealthCheckHelper.ConfigureLogging();
                     })
                 .ConfigureAppConfiguration(
                     (ctx, config) =>

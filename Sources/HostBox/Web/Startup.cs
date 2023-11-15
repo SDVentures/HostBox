@@ -15,10 +15,10 @@ namespace HostBox.Web
             // singleton services being created which might result in incorrect application behavior.
             // Consider alternatives such as dependency injecting services as parameters to 'Configure'.
             var sp = services.BuildServiceProvider();
-            //var test = this.startup;
+
             var startup = sp.GetService<IStartup>();
 
-            startup?.ConfigureServices(services);
+            startup.ConfigureServices(services);
             
             HostboxWebExtensions.AddHealthChecks(services);
         }
