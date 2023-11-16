@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Common.Logging;
 using Common.Logging.Configuration;
 using HostBox.Configuration;
@@ -20,6 +19,7 @@ namespace HostBox
     internal class Program
     {
         private const string ConfigurationNameEnvVariable = "configuration";
+
         private static ILog Logger { get; set; }
 
         private static async Task Main(string[] args = null)
@@ -113,7 +113,7 @@ namespace HostBox
                         if (commandLineArgs.Web)
                         {
                             services.ConfigureWebServices(loadComponentsResult);
-                        }   
+                        }
 
                         services.AddSingleton(ctx.Configuration.GetSection("host:components").Get<HostComponentsConfiguration>()
                                               ?? new HostComponentsConfiguration());

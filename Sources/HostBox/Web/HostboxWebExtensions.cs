@@ -47,7 +47,6 @@ namespace HostBox.Web
             if (startup != null)
             {
                 services.AddSingleton(typeof(IStartup), startup);
-
             }
             else
             {
