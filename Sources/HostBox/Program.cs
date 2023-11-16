@@ -69,7 +69,7 @@ namespace HostBox
                 }
             }
         }
-        
+
         private static IHostBuilder CreateHostBuilder(CommandLineArgs commandLineArgs)
         {
             var componentPath = Path.GetFullPath(commandLineArgs.Path, Directory.GetCurrentDirectory());
@@ -105,12 +105,15 @@ namespace HostBox
 
                         var loadComponentsResult = new ComponentsLoader(
                             new ComponentConfig
-                                {
-                                    Path = componentPath,
-                                    SharedLibraryPath = commandLineArgs.SharedLibrariesPath
-                                }).LoadComponents(ctx.Configuration);
+                            {
+                                Path = componentPath,
+                                SharedLibraryPath = commandLineArgs.SharedLibrariesPath
+                            }).LoadComponents(ctx.Configuration);
 
-                        HostboxWebExtensions.ConfigureWebServices(loadComponentsResult, services, commandLineArgs);
+                        if (commandLineArgs.Web)
+                        {
+                            services.ConfigureWebServices(loadComponentsResult);
+                        }   
 
                         services.AddSingleton(ctx.Configuration.GetSection("host:components").Get<HostComponentsConfiguration>()
                                               ?? new HostComponentsConfiguration());
@@ -125,14 +128,14 @@ namespace HostBox
 
             return builder;
         }
-        
+
         private static void ConfigureLogging(IConfiguration config)
         {
             var logConfiguration = new LogConfiguration();
             config.GetSection("common:logging").Bind(logConfiguration);
             LogManager.Configure(logConfiguration);
         }
-        
+
         private static void LoadConfiguration(IConfiguration currentConfiguration, IConfigurationBuilder config, string componentPath, CommandLineArgs args)
         {
             Logger.Trace(m => m("Loading hostable component using path [{0}].", componentPath));

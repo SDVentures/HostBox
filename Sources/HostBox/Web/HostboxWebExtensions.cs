@@ -40,22 +40,18 @@ namespace HostBox.Web
         }
 
         internal static void ConfigureWebServices(
-            ComponentsLoader.LoadComponentsResult loadComponentsResult,
-            IServiceCollection services,
-            CommandLineArgs commandLineArgs)
+            this IServiceCollection services,
+            ComponentsLoader.LoadComponentsResult loadComponentsResult)
         {
-            if (commandLineArgs.Web)
+            var startup = loadComponentsResult?.EntryAssembly?.GetExportedTypes().FirstOrDefault(t => typeof(IStartup).IsAssignableFrom(t));
+            if (startup != null)
             {
-                var startup = loadComponentsResult?.EntryAssembly?.GetExportedTypes().FirstOrDefault(t => typeof(IStartup).IsAssignableFrom(t));
-                if (startup != null)
-                {
-                    services.AddSingleton(typeof(IStartup), startup);
+                services.AddSingleton(typeof(IStartup), startup);
 
-                }
-                else
-                {
-                    throw new Exception($"Couldn't find a Startup class which is implementing IStartup in entry assembly {loadComponentsResult?.EntryAssembly?.FullName}");
-                }
+            }
+            else
+            {
+                throw new Exception($"Couldn't find a Startup class which is implementing IStartup in entry assembly {loadComponentsResult?.EntryAssembly?.FullName}");
             }
         }
 
