@@ -8,7 +8,6 @@ using Microsoft.Extensions.Hosting;
 
 namespace HostBox.Web
 {
-
     internal static class HostboxWebExtensions
     {
         public static void ConfigureWebHost(IHostBuilder builder, CommandLineArgs args)
@@ -63,15 +62,17 @@ namespace HostBox.Web
         internal static void UseHealthChecks(IApplicationBuilder app)
         {
             if (HealthCheckHelper.HealthCheckEnabled)
+            {
                 app.UseHealthChecks(HealthCheckHelper.HealthCheckRoute, HealthCheckHelper.HealthCheckPort);
+            }
         }
 
         internal static void AddHealthChecks(IServiceCollection services)
         {
-            if (!HealthCheckHelper.HealthCheckEnabled)
-                return;
-
-            HealthCheckHelper.AddHealthChecks(services);
+            if (HealthCheckHelper.HealthCheckEnabled)
+            {
+                HealthCheckHelper.AddHealthChecks(services);
+            }
         }
     }
 }

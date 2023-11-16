@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using Common.Logging;
 using HostBox.Configuration.Healthcheck;
@@ -37,7 +37,7 @@ namespace HostBox.Web
         // Logger initialized after we already read configuration
         public static void ConfigureLogging()
         {
-            Logger = LogManager.GetLogger("HostboxWebExtensions");
+            Logger = LogManager.GetLogger("HealthCheckHelper");
 
             if (ProbesConfig == null)
             {
@@ -51,7 +51,6 @@ namespace HostBox.Web
 
         public static void AddHealthChecks(IServiceCollection services)
         {
-
             var healthCheckBuilder = services.AddHealthChecks();
 
             foreach (var (className, config) in HealthCheckHelper.ProbesConfig.KnownChecks)
