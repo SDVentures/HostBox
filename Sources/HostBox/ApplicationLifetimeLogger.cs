@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
 using Microsoft.Extensions.Hosting;
@@ -9,22 +9,12 @@ namespace HostBox
     {
         private static readonly ILog Logger = LogManager.GetLogger<ApplicationLifetimeLogger>();
        
-#if !NETCOREAPP2_1
         public ApplicationLifetimeLogger(IHostApplicationLifetime lifetime)
         {
             lifetime.ApplicationStarted.Register(OnStarted);
             lifetime.ApplicationStopping.Register(OnStopping);
             lifetime.ApplicationStopped.Register(OnStopped);
         }
-#endif
-#if NETCOREAPP2_1
-        public ApplicationLifetimeLogger(IApplicationLifetime lifetime)
-        {
-            lifetime.ApplicationStarted.Register(OnStarted);
-            lifetime.ApplicationStopping.Register(OnStopping);
-            lifetime.ApplicationStopped.Register(OnStopped);
-        }
-#endif
 
         public Task StartAsync(CancellationToken cancellationToken)
         {

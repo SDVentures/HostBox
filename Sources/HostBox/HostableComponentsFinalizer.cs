@@ -1,4 +1,3 @@
-﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,18 +15,9 @@ namespace HostBox
 
         private readonly HostComponentsConfiguration configuration;
 
-#if NETCOREAPP3_1_OR_GREATER
         private readonly IHostApplicationLifetime lifetime;
-#else
-        private readonly IApplicationLifetime lifetime;
 
-#endif
-
-#if NETCOREAPP3_1_OR_GREATER
         public HostableComponentsFinalizer(IHostApplicationLifetime lifetime, HostedComponentsManager hostedComponentsManager, HostComponentsConfiguration configuration)
-#else
-        public HostableComponentsFinalizer(IApplicationLifetime lifetime, HostedComponentsManager hostedComponentsManager, HostComponentsConfiguration configuration)
-#endif
         {
             this.lifetime = lifetime;
             this.hostedComponentsManager = hostedComponentsManager;

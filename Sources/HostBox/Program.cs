@@ -1,19 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Common.Logging;
 using Common.Logging.Configuration;
 using HostBox.Configuration;
 using HostBox.Loading;
-
-#if !NETCOREAPP2_1
+using HostBox.Web;
 using Microsoft.AspNetCore.Hosting;
-#endif
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +19,7 @@ namespace HostBox
     internal class Program
     {
         private const string ConfigurationNameEnvVariable = "configuration";
+
         private static ILog Logger { get; set; }
 
         private static async Task Main(string[] args = null)
@@ -72,11 +69,13 @@ namespace HostBox
                 }
             }
         }
-        
+
         private static IHostBuilder CreateHostBuilder(CommandLineArgs commandLineArgs)
         {
             var componentPath = Path.GetFullPath(commandLineArgs.Path, Directory.GetCurrentDirectory());
-            
+
+            HealthCheckHelper.Initialize(componentPath, commandLineArgs.SharedLibrariesPath);
+
             var builder = new HostBuilder()
                 .ConfigureHostConfiguration(
                     config =>
@@ -88,10 +87,11 @@ namespace HostBox
                         config.AddJsonFile("hostsettings.json", true, false);
 
                         ConfigureLogging(config.Build());
-                        
+
                         Logger = LogManager.GetLogger<Program>();
 
                         Logger.Trace(m => m("Starting hostbox."));
+                        HealthCheckHelper.ConfigureLogging();
                     })
                 .ConfigureAppConfiguration(
                     (ctx, config) =>
@@ -105,25 +105,16 @@ namespace HostBox
 
                         var loadComponentsResult = new ComponentsLoader(
                             new ComponentConfig
-                                {
-                                    Path = componentPath,
-                                    SharedLibraryPath = commandLineArgs.SharedLibrariesPath
-                                }).LoadComponents(ctx.Configuration);
+                            {
+                                Path = componentPath,
+                                SharedLibraryPath = commandLineArgs.SharedLibrariesPath
+                            }).LoadComponents(ctx.Configuration);
 
-#if !NETCOREAPP2_1
                         if (commandLineArgs.Web)
                         {
-                            var startup = loadComponentsResult?.EntryAssembly?.GetExportedTypes().FirstOrDefault(t => typeof(IStartup).IsAssignableFrom(t));
-                            if (startup != null)
-                            {
-                                services.AddSingleton(typeof(IStartup), startup);
-                            }
-                            else
-                            {
-                                Logger.Error(m => m("Couldn't find a Startup class which is implementing IStartup"));
-                            }
+                            services.ConfigureWebServices(loadComponentsResult);
                         }
-#endif
+
                         services.AddSingleton(ctx.Configuration.GetSection("host:components").Get<HostComponentsConfiguration>()
                                               ?? new HostComponentsConfiguration());
 
@@ -133,27 +124,18 @@ namespace HostBox
                         services.AddHostedService<ApplicationLifetimeLogger>();
                     });
 
-#if !NETCOREAPP2_1
-            if (commandLineArgs.Web)
-            {
-                builder
-                    .ConfigureWebHostDefaults(b =>
-                    {
-                        b.UseStartup<Startup>();
-                    });
-            }
-#endif
+            HostboxWebExtensions.ConfigureWebHost(builder, commandLineArgs);
 
             return builder;
         }
-        
+
         private static void ConfigureLogging(IConfiguration config)
         {
             var logConfiguration = new LogConfiguration();
             config.GetSection("common:logging").Bind(logConfiguration);
             LogManager.Configure(logConfiguration);
         }
-        
+
         private static void LoadConfiguration(IConfiguration currentConfiguration, IConfigurationBuilder config, string componentPath, CommandLineArgs args)
         {
             Logger.Trace(m => m("Loading hostable component using path [{0}].", componentPath));
