@@ -10,8 +10,9 @@ namespace HostBox.Web
 {
     internal static class HealthCheckHelper
     {
+        private static bool healthcheckEnabled = false;
         private static ILog Logger { get; set; }
-        public static bool HealthCheckEnabled => ProbesConfig != null;
+        public static bool HealthCheckEnabled => ProbesConfig != null && healthcheckEnabled;
         public static ProbesConfig ProbesConfig { get; private set; } = null;
         public static int HealthCheckPort { get; private set; } = 9191;
         public static string HealthCheckUrl { get; private set; } = $"http://+:{HealthCheckPort}";
@@ -19,6 +20,11 @@ namespace HostBox.Web
 
         internal static void Initialize(string componentPath, string sharedLibrariesPath)
         {
+            healthcheckEnabled = Environment.GetEnvironmentVariable("HEALTHCHECK_ENABLED")?.ToLowerInvariant() == "true";
+            if (!healthcheckEnabled)
+            {
+                return;
+            }
             var componentBasePath = Path.GetDirectoryName(componentPath);
             var initialConfiguration = BuildInitialConfiguration(componentBasePath, sharedLibrariesPath);
 
