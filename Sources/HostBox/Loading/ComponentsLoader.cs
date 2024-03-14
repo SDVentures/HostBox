@@ -48,7 +48,7 @@ namespace HostBox.Loading
 
             var componentsAssemblies = dc.GetRuntimeAssemblyNames(RuntimeEnvironment.GetRuntimeIdentifier())
                 .Where(n => n != entryAssemblyName)
-                .Select(this.loader.LoadAssembly)
+                .Select(x => this.loader.LoadAssembly(x))
                 .ToArray();
 
             this.SetSharedLibrariesConfiguration(configuration, componentsAssemblies);
