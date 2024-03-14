@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using McMaster.NETCore.Plugins.Loader;
 
@@ -84,9 +85,12 @@ namespace McMaster.NETCore.Plugins
         /// </summary>
         /// <param name="assemblyName">The assembly name.</param>
         /// <returns>The assembly.</returns>
-        public Assembly LoadAssembly(AssemblyName assemblyName)
+        public Assembly LoadAssembly(AssemblyName assemblyName, 
+            [CallerMemberName]string caller = "idk",
+            [CallerFilePath] string callerFile = "???",
+            [CallerLineNumber] int callerLine = -1)
         {
-            Console.WriteLine($"Load Assembly {assemblyName} {assemblyName.FullName}");
+            Console.WriteLine($"Load Assembly {assemblyName} v{assemblyName.Version}. caller {caller}. callerFile {callerFile}:{callerLine}");
             return _context.LoadFromAssemblyName(assemblyName);
         }
 

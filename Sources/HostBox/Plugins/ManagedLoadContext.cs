@@ -1,4 +1,4 @@
-﻿// Copyright (c) Nate McMaster.
+// Copyright (c) Nate McMaster.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -218,7 +218,7 @@ namespace McMaster.NETCore.Plugins.Loader
                 {
                     if (basePath == this._sharedBasePath)
                     {
-                        Logger.Trace(m => m("Будет загружен библиотека из файла [{0}].", localFile));
+                        Logger.Trace(m => m("Будет загружен библиотека из файла [{0}]. [{1}] v{2}", localFile, library.Name.FullName, library.Name.Version));
                     }
 
                     path = localFile;
