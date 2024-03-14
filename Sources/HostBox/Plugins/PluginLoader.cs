@@ -91,6 +91,7 @@ namespace McMaster.NETCore.Plugins
             [CallerLineNumber] int callerLine = -1)
         {
             Console.WriteLine($"Load Assembly {assemblyName} v{assemblyName.Version}. caller {caller}. callerFile {callerFile}:{callerLine}");
+            Console.WriteLine(Environment.StackTrace);
             return _context.LoadFromAssemblyName(assemblyName);
         }
 
