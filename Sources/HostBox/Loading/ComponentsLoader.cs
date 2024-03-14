@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -41,7 +41,8 @@ namespace HostBox.Loading
         public LoadComponentsResult LoadComponents(IConfiguration configuration)
         {
             var entryAssembly = this.loader.LoadDefaultAssembly();
-            var entryAssemblyName = entryAssembly.GetName(false);
+            var entryAssemblyName = entryAssembly.GetName(false); 
+            Console.WriteLine($"Load components: LoadDefaultAssembly [{entryAssemblyName}]");
 
             var dc = DependencyContext.Load(this.loader.LoadDefaultAssembly());
 
