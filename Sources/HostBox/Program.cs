@@ -104,11 +104,13 @@ namespace HostBox
                         Directory.SetCurrentDirectory(Path.GetDirectoryName(componentPath));
 
                         var loadComponentsResult = new ComponentsLoader(
-                            new ComponentConfig
-                            {
-                                Path = componentPath,
-                                SharedLibraryPath = commandLineArgs.SharedLibrariesPath
-                            }).LoadComponents(ctx.Configuration);
+                                        new ComponentConfig
+                                        {
+                                            Path = componentPath,
+                                            SharedLibraryPath = commandLineArgs.SharedLibrariesPath
+                                        },
+                                        ctx.Configuration)
+                            .LoadComponents(ctx.Configuration);
 
                         if (commandLineArgs.Web)
                         {

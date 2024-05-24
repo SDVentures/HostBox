@@ -1,8 +1,9 @@
-﻿// Copyright (c) Nate McMaster.
+// Copyright (c) Nate McMaster.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,12 +21,15 @@ namespace McMaster.NETCore.Plugins.Loader
     /// An implementation of <see cref="AssemblyLoadContext" /> which attempts to load managed and native
     /// binaries at runtime immitating some of the behaviors of corehost.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original style")]
     internal class ManagedLoadContext : AssemblyLoadContext
     {
         private static readonly ILog Logger = LogManager.GetLogger<ManagedLoadContext>();
 
         private readonly string _basePath;
         private readonly string _sharedBasePath;
+        private readonly SharedLibLoadBehavior _defaultLibBehavior;
+        private readonly Dictionary<string, SharedLibLoadBehavior> _sharedLibBehavior;
 
         private readonly IReadOnlyDictionary<string, ManagedLibrary> _managedAssemblies;
         private readonly IReadOnlyDictionary<string, NativeLibrary> _nativeLibraries;
@@ -43,7 +47,9 @@ namespace McMaster.NETCore.Plugins.Loader
             IReadOnlyCollection<string> defaultAssemblies,
             IReadOnlyCollection<string> additionalProbingPaths,
             IReadOnlyCollection<string> resourceProbingPaths,
-            bool preferDefaultLoadContext)
+            bool preferDefaultLoadContext,
+            SharedLibLoadBehavior defaultLibBehavior,
+            Dictionary<string, SharedLibLoadBehavior> sharedLibBehavior)
         {
             if (resourceProbingPaths == null)
             {
@@ -58,6 +64,8 @@ namespace McMaster.NETCore.Plugins.Loader
             _nativeLibraries = nativeLibraries ?? throw new ArgumentNullException(nameof(nativeLibraries));
             _additionalProbingPaths = additionalProbingPaths ?? throw new ArgumentNullException(nameof(additionalProbingPaths));
             _preferDefaultLoadContext = preferDefaultLoadContext;
+            _defaultLibBehavior = defaultLibBehavior;
+            _sharedLibBehavior = sharedLibBehavior;
 
             _resourceRoots = new[] { _basePath }
                 .Concat(resourceProbingPaths)
@@ -201,26 +209,52 @@ namespace McMaster.NETCore.Plugins.Loader
 
         private bool SearchForLibrary(ManagedLibrary library, out string path)
         {
-            // 1. Check for in _basePath + app local path
-            var basePaths = new List<string>();
-
-            if (!string.IsNullOrEmpty(this._sharedBasePath))
+            if (!_sharedLibBehavior.TryGetValue(library.Name.Name, out var behavior))
             {
-                basePaths.Add(this._sharedBasePath);
+                behavior = _defaultLibBehavior;
             }
 
-            basePaths.Add(this._basePath);
-
-            foreach (var basePath in basePaths)
+            string sharedLib = null;
+            if (!string.IsNullOrEmpty(this._sharedBasePath))
             {
-                var localFile = Path.Combine(basePath, library.AppLocalPath);
-                if (File.Exists(localFile))
+                sharedLib = Path.Combine(this._sharedBasePath, library.AppLocalPath);
+                if (!File.Exists(sharedLib))
                 {
-                    if (basePath == this._sharedBasePath)
-                    {
-                        Logger.Trace(m => m("Будет загружен библиотека из файла [{0}].", localFile));
-                    }
+                    sharedLib = null;
+                }
+            }
 
+            var localFile = Path.Combine(this._basePath, library.AppLocalPath);
+            var localFileExists = File.Exists(localFile);
+            if (sharedLib != null)
+            {
+                if (behavior == SharedLibLoadBehavior.PreferLocal && localFileExists)
+                {
+                    path = localFile;
+                    return true;
+                }
+
+                if (behavior == SharedLibLoadBehavior.HighestVersion && localFileExists)
+                {
+                    if (CompareLibraries(localFile, sharedLib) >= 0)
+                    {
+                        path = localFile;
+                        return true;
+                    }
+                }
+
+                // prefer shared behavior
+                Logger.Trace(m => m("Loading shared library from [{0}]. Version {1}", 
+                                        sharedLib, 
+                                        FileVersionInfo.GetVersionInfo(sharedLib).FileVersion));
+                path = sharedLib;
+                return true;
+            }
+            else
+            {
+                // no shared lib - always check local
+                if (localFileExists)
+                {
                     path = localFile;
                     return true;
                 }
@@ -292,6 +326,40 @@ namespace McMaster.NETCore.Plugins.Loader
         {
             var normalized = Path.GetFullPath(unmanagedDllPath);
             return LoadUnmanagedDllFromPath(normalized);
+        }
+
+        /// <summary>
+        /// 0 - version match
+        /// > 0 - first is higher,
+        /// < 0 - second is higher
+        /// </summary>
+        /// <returns></returns>
+        private int CompareLibraries(FileVersionInfo first, FileVersionInfo second)
+        {
+            if (!Version.TryParse(first.FileVersion, out var firstVersion))
+            {
+                firstVersion = new Version(0, 0, 0, 0);
+            }
+            if (!Version.TryParse(second.FileVersion, out var secondVersion))
+            {
+                secondVersion = new Version(0, 0, 0, 0);
+            }
+
+            return firstVersion.CompareTo(secondVersion);
+        }
+
+        /// <summary>
+        /// 0 - version match
+        /// > 0 - first is higher,
+        /// < 0 - second is higher
+        /// </summary>
+        /// <returns></returns>
+        private int CompareLibraries(string firstPath, string secondPath)
+        {
+            var firstVersionInfo = FileVersionInfo.GetVersionInfo(firstPath);
+            var secondVersionInfo = FileVersionInfo.GetVersionInfo(secondPath);
+
+            return CompareLibraries(firstVersionInfo, secondVersionInfo);
         }
     }
 }
