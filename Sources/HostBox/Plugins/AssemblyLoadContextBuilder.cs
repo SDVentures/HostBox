@@ -1,4 +1,4 @@
-﻿// Copyright (c) Nate McMaster.
+// Copyright (c) Nate McMaster.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -14,6 +14,7 @@ namespace McMaster.NETCore.Plugins.Loader
     /// <summary>
     /// A builder for creating an instance of <see cref="AssemblyLoadContext" />.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original style")]
     internal class AssemblyLoadContextBuilder
     {
         private string _sharedPath;
@@ -31,7 +32,9 @@ namespace McMaster.NETCore.Plugins.Loader
         /// Creates an assembly load context using settings specified on the builder.
         /// </summary>
         /// <returns>A new ManagedLoadContext.</returns>
-        public AssemblyLoadContext Build()
+        public AssemblyLoadContext Build(
+            SharedLibLoadBehavior defaultLibBehavior,
+            Dictionary<string, SharedLibLoadBehavior> sharedLibBehavior)
         {
             var resourceProbingPaths = new List<string>(_resourceProbingPaths);
             foreach (var additionalPath in _additionalProbingPaths)
@@ -51,7 +54,9 @@ namespace McMaster.NETCore.Plugins.Loader
                 _defaultAssemblies,
                 _additionalProbingPaths,
                 resourceProbingPaths,
-                _preferDefaultLoadContext);
+                _preferDefaultLoadContext,
+                defaultLibBehavior,
+                sharedLibBehavior);
         }
 
         /// <summary>

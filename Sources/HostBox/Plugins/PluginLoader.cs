@@ -1,4 +1,4 @@
-﻿// Copyright (c) Nate McMaster.
+// Copyright (c) Nate McMaster.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -18,48 +18,16 @@ namespace McMaster.NETCore.Plugins
     /// The loader searches the plugin path, as well as any additionally specified paths, for binaries
     /// which satisfy the plugin's requirements.
     /// </para>
+    /// Original code: https://github.com/natemcmaster/DotNetCorePlugins
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original style")]
     internal class PluginLoader
     {
-        /// <summary>
-        /// Create a plugin loader using the settings from a plugin config file.
-        /// <seealso cref="PluginConfig" /> for defaults on the plugin configuration.
-        /// </summary>
-        /// <param name="filePath">The file path to the plugin config.</param>
-        /// <param name="sharedTypes">A list of types which should be shared between the host and the plugin.</param>
-        /// <returns>A loader.</returns>
-        public static PluginLoader CreateFromConfigFile(string filePath, Type[] sharedTypes = null)
+        public static PluginLoader CreateFromConfig(PluginLoadConfig loadConfig)
         {
-            var config = PluginConfig.CreateFromFile(filePath);
-            var baseDir = Path.GetDirectoryName(filePath);
-            return new PluginLoader(config, baseDir, sharedTypes, PluginLoaderOptions.None, null);
-        }
-
-        /// <summary>
-        /// Create a plugin loader for an assembly file.
-        /// </summary>
-        /// <param name="assemblyFile">The file path to the plugin config.</param>
-        /// <param name="sharedTypes">A list of types which should be shared between the host and the plugin.</param>
-        /// <param name="probingPath">additional probing path</param>
-        /// <returns>A loader.</returns>
-        public static PluginLoader CreateFromAssemblyFile(string assemblyFile, Type[] sharedTypes = null, string sharedPath = null)
-        {
-            var config = new FileOnlyPluginConfig(assemblyFile);
-            var baseDir = Path.GetDirectoryName(assemblyFile);
-            return new PluginLoader(config, baseDir, sharedTypes, PluginLoaderOptions.None, sharedPath);
-        }
-
-        /// <summary>
-        /// Create a plugin loader for an assembly file.
-        /// </summary>
-        /// <param name="assemblyFile">The file path to the plugin config.</param>
-        /// <param name="loaderOptions">Options for the loader</param>
-        /// <returns>A loader.</returns>
-        public static PluginLoader CreateFromAssemblyFile(string assemblyFile, PluginLoaderOptions loaderOptions)
-        {
-            var config = new FileOnlyPluginConfig(assemblyFile);
-            var baseDir = Path.GetDirectoryName(assemblyFile);
-            return new PluginLoader(config, baseDir, Array.Empty<Type>(), loaderOptions, null);
+            var config = new FileOnlyPluginConfig(loadConfig.Assembly);
+            var baseDir = Path.GetDirectoryName(loadConfig.Assembly);
+            return new PluginLoader(config, baseDir, PluginLoaderOptions.None, loadConfig);
         }
 
         private class FileOnlyPluginConfig : PluginConfig
@@ -70,7 +38,7 @@ namespace McMaster.NETCore.Plugins
         }
 
         private readonly string _mainAssembly;
-        private AssemblyLoadContext _context;
+        private readonly AssemblyLoadContext _context;
 
         /// <summary>
         /// Load the main assembly for the plugin.
@@ -96,28 +64,26 @@ namespace McMaster.NETCore.Plugins
 
         internal PluginLoader(PluginConfig config,
                               string baseDir,
-                              Type[] sharedTypes,
                               PluginLoaderOptions loaderOptions,
-                              string sharedPath)
+                              PluginLoadConfig loadConfig)
         {
             _mainAssembly = Path.Combine(baseDir, config.MainAssembly.Name + ".dll");
-            _context = CreateLoadContext(baseDir, config, sharedTypes, loaderOptions, sharedPath);
+            _context = CreateLoadContext(baseDir, config, loaderOptions, loadConfig);
         }
 
         private static AssemblyLoadContext CreateLoadContext(
             string baseDir,
             PluginConfig config,
-            Type[] sharedTypes,
             PluginLoaderOptions loaderOptions,
-            string sharedPath)
+            PluginLoadConfig loadConfig)
         {
             var depsJsonFile = Path.Combine(baseDir, config.MainAssembly.Name + ".deps.json");
 
             var builder = new AssemblyLoadContextBuilder();
 
-            if (sharedPath != null)
+            if (loadConfig.SharedPath != null)
             {
-                builder.AddSharedPath(sharedPath);
+                builder.AddSharedPath(loadConfig.SharedPath);
             }
 
             if (File.Exists(depsJsonFile))
@@ -137,9 +103,9 @@ namespace McMaster.NETCore.Plugins
                 builder.PreferDefaultLoadContext(true);
             }
 
-            if (sharedTypes != null)
+            if (loadConfig.SharedTypes != null)
             {
-                foreach (var type in sharedTypes)
+                foreach (var type in loadConfig.SharedTypes)
                 {
                     builder.PreferDefaultLoadContextAssembly(type.Assembly.GetName());
                 }
@@ -157,7 +123,9 @@ namespace McMaster.NETCore.Plugins
                 builder.TryAddAdditionalProbingPathFromRuntimeConfig(runtimeconfig, includeDevConfig: true, out _);
             }
 
-            return builder.Build();
+            return builder.Build(
+                loadConfig.DefaultSharedLibBehavior,
+                loadConfig.SharedLibBehavior);
         }
     }
 }

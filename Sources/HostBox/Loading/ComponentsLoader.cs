@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -26,16 +26,28 @@ namespace HostBox.Loading
 
         private readonly PluginLoader loader;
 
-        public ComponentsLoader(ComponentConfig config)
+        public ComponentsLoader(ComponentConfig config, IConfiguration configuration)
         {
-            this.loader = PluginLoader.CreateFromAssemblyFile(
-                config.Path,
-                new[]
-                    {
-                        typeof(Borderline.IConfiguration),
-                        typeof(DependencyContext)
-                    },
-                config.SharedLibraryPath);
+            var behaviorConfig = configuration
+                            .GetSection("shared-libraries:gems.app:shared-libraries-loading")
+                            .Get<SharedLibraryLoadingConfig>() ?? new SharedLibraryLoadingConfig();
+
+            var pluginLoadConfig = new PluginLoadConfig
+            {
+                Assembly = config.Path,
+                SharedTypes = new[]
+                {
+                    typeof(Borderline.IConfiguration),
+                    typeof(DependencyContext)
+                },
+                SharedPath = config.SharedLibraryPath,
+                DefaultSharedLibBehavior = ConvertBehavior(behaviorConfig.DefaultBehavior),
+                SharedLibBehavior = behaviorConfig.Overrides == null
+                        ? new Dictionary<string, SharedLibLoadBehavior>()
+                        : behaviorConfig.Overrides.ToDictionary(kvp => kvp.Key, kvp => ConvertBehavior(kvp.Value))
+            };
+
+            this.loader = PluginLoader.CreateFromConfig(pluginLoadConfig);
         }
 
         public LoadComponentsResult LoadComponents(IConfiguration configuration)
@@ -68,7 +80,7 @@ namespace HostBox.Loading
                     continue;
                 }
 
-                foreach(var factory in componentFactoryTypes
+                foreach (var factory in componentFactoryTypes
                     .Select(Activator.CreateInstance)
                     .Cast<IHostableComponentFactory>()
                     .ToArray())
@@ -111,7 +123,7 @@ namespace HostBox.Loading
 
                             method.Invoke(
                                 null,
-                                new []
+                                new[]
                                     {
                                         sharedLibConfiguration
                                     });
@@ -120,6 +132,22 @@ namespace HostBox.Loading
                         }
                     }
                 }
+            }
+        }
+
+        private static SharedLibLoadBehavior ConvertBehavior(string behavior)
+        {
+            switch (behavior)
+            {
+                case "prefer_shared":
+                    return SharedLibLoadBehavior.PreferShared;
+                case "prefer_local":
+                    return SharedLibLoadBehavior.PreferLocal;
+                case "highest_version":
+                    return SharedLibLoadBehavior.HighestVersion;
+                default:
+                    Logger.Warn(m => m($"Unknown shared library loading behavior: {behavior}. Using 'prefer_shared'"));
+                    return SharedLibLoadBehavior.PreferShared;
             }
         }
 
