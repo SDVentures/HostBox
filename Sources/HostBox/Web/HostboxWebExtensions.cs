@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NLog.Web;
 
 namespace HostBox.Web
 {
@@ -14,6 +15,7 @@ namespace HostBox.Web
         {
             if (args.Web)
             {
+                builder.UseNLog();
                 builder
                     .ConfigureWebHostDefaults(b =>
                     {
