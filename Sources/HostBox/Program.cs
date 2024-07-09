@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NLog;
+using LogManager = Common.Logging.LogManager;
 
 namespace HostBox
 {
@@ -76,7 +78,8 @@ namespace HostBox
         private static IHostBuilder CreateHostBuilder(CommandLineArgs commandLineArgs)
         {
             var componentPath = Path.GetFullPath(commandLineArgs.Path, Directory.GetCurrentDirectory());
-            
+            var componentName = Path.GetFileNameWithoutExtension(commandLineArgs.Path);
+
             var builder = new HostBuilder()
                 .ConfigureHostConfiguration(
                     config =>
@@ -87,8 +90,8 @@ namespace HostBox
 
                         config.AddJsonFile("hostsettings.json", true, false);
 
-                        ConfigureLogging(config.Build());
-                        
+                        ConfigureLogging(config.Build(), componentName);
+
                         Logger = LogManager.GetLogger<Program>();
 
                         Logger.Trace(m => m("Starting hostbox."));
@@ -146,9 +149,10 @@ namespace HostBox
 
             return builder;
         }
-        
+
         private static void ConfigureLogging(IConfiguration config)
         {
+            GlobalDiagnosticsContext.Set("app", appName.Replace(".Instance", "-HOSTBOX_DEBUG"));
             var logConfiguration = new LogConfiguration();
             config.GetSection("common:logging").Bind(logConfiguration);
             LogManager.Configure(logConfiguration);
