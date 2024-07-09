@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -150,9 +150,9 @@ namespace HostBox
             return builder;
         }
 
-        private static void ConfigureLogging(IConfiguration config)
+        private static void ConfigureLogging(IConfiguration config, string appName)
         {
-            GlobalDiagnosticsContext.Set("app", appName.Replace(".Instance", "-HOSTBOX_DEBUG"));
+            GlobalDiagnosticsContext.Set("app", appName.Replace(".Instance", string.Empty));
             var logConfiguration = new LogConfiguration();
             config.GetSection("common:logging").Bind(logConfiguration);
             LogManager.Configure(logConfiguration);
