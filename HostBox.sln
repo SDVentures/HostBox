@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTelemetry.Exporter.DataDogCustom", "OpenTelemetry.Exporter.DataDogCustom\OpenTelemetry.Exporter.DataDogCustom.csproj", "{216DA4DD-B07A-4703-8A36-45E547571914}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{FB5478E2-66DB-4728-A3FE-5A08FEB80D70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB5478E2-66DB-4728-A3FE-5A08FEB80D70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB5478E2-66DB-4728-A3FE-5A08FEB80D70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{216DA4DD-B07A-4703-8A36-45E547571914}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{216DA4DD-B07A-4703-8A36-45E547571914}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{216DA4DD-B07A-4703-8A36-45E547571914}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{216DA4DD-B07A-4703-8A36-45E547571914}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

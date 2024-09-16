@@ -14,6 +14,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
+#if NET8_0_OR_GREATER
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Exporter.DataDogCustom;
+#endif
 using LogManager = Common.Logging.LogManager;
 
 namespace HostBox
@@ -80,6 +84,7 @@ namespace HostBox
             HealthCheckHelper.Initialize(componentPath, commandLineArgs.SharedLibrariesPath);
 
             var builder = new HostBuilder()
+                
                 .ConfigureHostConfiguration(
                     config =>
                     {
@@ -104,6 +109,13 @@ namespace HostBox
                 .ConfigureServices(
                     (ctx, services) =>
                     {
+#if NET8_0_OR_GREATER
+                        services
+                            .AddOpenTelemetry()
+                            .WithMetrics(metrics =>
+                                    metrics.AddRuntimeInstrumentation().AddDatadogExporter()
+                                    );
+#endif
                         Directory.SetCurrentDirectory(Path.GetDirectoryName(componentPath));
 
                         var loadComponentsResult = new ComponentsLoader(
@@ -127,7 +139,9 @@ namespace HostBox
 
                         services.AddHostedService<HostableComponentsFinalizer>();
                         services.AddHostedService<ApplicationLifetimeLogger>();
-                    });
+
+                    })
+                ;
 
             HostboxWebExtensions.ConfigureWebHost(builder, commandLineArgs);
 
